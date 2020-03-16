@@ -32,7 +32,8 @@ public class AndroidEntryPointUtils {
 	 * Array containing all types of components supported in Android lifecycles
 	 */
 	public enum ComponentType {
-		Application, Activity, Service, Fragment, BroadcastReceiver, ContentProvider, GCMBaseIntentService, GCMListenerService, ServiceConnection, Plain
+		Application, Activity, Service, Fragment, BroadcastReceiver, ContentProvider, GCMBaseIntentService,
+		GCMListenerService, ServiceConnection, Plain
 	}
 
 	/**
@@ -58,8 +59,7 @@ public class AndroidEntryPointUtils {
 	/**
 	 * Gets the type of component represented by the given Soot class
 	 * 
-	 * @param currentClass
-	 *            The class for which to get the component type
+	 * @param currentClass The class for which to get the component type
 	 * @return The component type of the given class
 	 */
 	public ComponentType getComponentType(SootClass currentClass) {
@@ -116,8 +116,7 @@ public class AndroidEntryPointUtils {
 	/**
 	 * Checks whether the given class is derived from android.app.Application
 	 * 
-	 * @param clazz
-	 *            The class to check
+	 * @param clazz The class to check
 	 * @return True if the given class is derived from android.app.Application,
 	 *         otherwise false
 	 */
@@ -130,8 +129,7 @@ public class AndroidEntryPointUtils {
 	 * Checks whether the given method is an Android entry point, i.e., a lifecycle
 	 * method
 	 * 
-	 * @param method
-	 *            The method to check
+	 * @param method The method to check
 	 * @return True if the given method is a lifecycle method, otherwise false
 	 */
 	public boolean isEntryPointMethod(SootMethod method) {

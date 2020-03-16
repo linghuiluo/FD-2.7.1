@@ -24,7 +24,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/soot-infoflow"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/soot-infoflow-271"/>
 	<classpathentry kind="lib" path="lib/protobuf-java-2.5.0.jar"/>
 	<classpathentry excluding="**" kind="src" output="build/classes" path="schema">
 		<attributes>

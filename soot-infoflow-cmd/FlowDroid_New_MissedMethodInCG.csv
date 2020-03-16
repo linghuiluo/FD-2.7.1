@@ -1,0 +1,96 @@
+FlowDroid_new;;;#Flows Not In CG
+fakeplay;;;2
+1;<javax.activation.DataHandler: void writeTo(java.io.OutputStream)>;sink;
+2;<javax.activation.DataHandler: void writeTo(java.io.OutputStream)>;sink;
+;;;
+hummingbad_android_samp;;;2
+2;<com.android.ad.du.BaiduCacheDBUtil: java.util.ArrayList listDuAdDatasFromAppCache(android.content.Context)>;source;
+2;<com.mb.bdapp.db.DBService: void updateAdById(long,com.mb.bdapp.db.DuAd)>;sink;
+1;<com.android.ad.du.BaiduCacheDBUtil: java.util.ArrayList listDuAdDatasFromAppCache(android.content.Context)>;source;
+1;<com.mb.bdapp.db.DBService: long insertAd(com.mb.bdapp.db.DuAd)>;sink;
+;;;
+overlaylocker2_android_samp;;;6
+1;<brandmangroupe.miui.updater.MeSetting: java.lang.String imei()>;source;
+2;<brandmangroupe.miui.updater.TelephonyInfo: brandmangroupe.miui.updater.TelephonyInfo getInstance(android.content.Context)>;source;
+3;<brandmangroupe.miui.updater.MeSystem: boolean sendSMS(int,java.lang.String,java.lang.String)>;source;
+3;<brandmangroupe.miui.updater.MeSystem: boolean sendSMS(int,java.lang.String,java.lang.String)>;sink;
+4;<brandmangroupe.miui.updater.MeSystem: boolean sendSMS(int,java.lang.String,java.lang.String)>;source;
+4;<brandmangroupe.miui.updater.MeSystem: boolean sendSMS(int,java.lang.String,java.lang.String)>;sink;
+5;<brandmangroupe.miui.updater.MeFile: void file2url(java.lang.String,java.lang.String)>;source;
+5;<brandmangroupe.miui.updater.MeFile: void file2url(java.lang.String,java.lang.String)>;sink;
+6;<brandmangroupe.miui.updater.MeFile: java.lang.String read(java.lang.String)>;source;
+;;;
+remote_control_smack;;;17
+1;<com.android.service.view.GPSTracker: android.location.Location getLocation()>;source;
+1;<com.android.service.AlarmReceiver$1$1: void run()>;sink;
+2;<com.android.service.view.GPSTracker: android.location.Location getLocation()>;source;
+2;<com.android.service.AlarmReceiver$1$1: void run()>;sink;
+3;<com.android.service.XmppService: void sms_saveFile()>;source;
+3;<com.android.service.XmppService: void sms_saveFile()>;sink;
+4;<com.android.service.XmppService: void sms_saveFile()>;source;
+4;<com.android.service.XmppService: void sms_saveFile()>;sink;
+5;<com.android.service.XmppService: void sms_saveFile()>;source;
+5;<com.android.service.XmppService: void sms_saveFile()>;sink;
+6;<com.android.service.XmppService: void sms_saveFile()>;source;
+6;<com.android.service.XmppService: void sms_saveFile()>;sink;
+7;<com.android.service.XmppService: void call_saveFile()>;source;
+7;<com.android.service.XmppService: void call_saveFile()>;sink;
+8;<com.android.service.XmppService: void call_saveFile()>;source;
+8;<com.android.service.XmppService: void call_saveFile()>;sink;
+9;<com.android.service.XmppService: void call_saveFile()>;source;
+9;<com.android.service.XmppService: void call_saveFile()>;sink;
+10;<com.android.service.XmppService: void call_saveFile()>;source;
+10;<com.android.service.XmppService: void call_saveFile()>;sink;
+11;<com.android.service.XmppService: void contacts_saveFile()>;source;
+11;<com.android.service.XmppService: void contacts_saveFile()>;sink;
+12;<com.android.service.XmppService: void contacts_saveFile()>;source;
+12;<com.android.service.XmppService: void contacts_saveFile()>;sink;
+13;<com.android.service.XmppService: void Calendar_saveFile()>;source;
+13;<com.android.service.XmppService: void Calendar_saveFile()>;sink;
+14;<com.android.service.XmppService: void Calendar_saveFile()>;source;
+14;<com.android.service.XmppService: void Calendar_saveFile()>;sink;
+15;<com.android.service.XmppService: void Calendar_saveFile()>;source;
+15;<com.android.service.XmppService: void Calendar_saveFile()>;sink;
+16;<com.android.service.XmppService: void Calendar_saveFile()>;source;
+16;<com.android.service.XmppService: void Calendar_saveFile()>;sink;
+17;<com.android.service.XmppService: void Calendar_saveFile()>;source;
+17;<com.android.service.XmppService: void Calendar_saveFile()>;sink;
+;;;
+repane;;;1
+1;<com.vr.installer.scanner.PackageDescription: void install(android.content.Context)>;source;
+1;<com.vr.installer.scanner.PackageDescription: void install(android.content.Context)>;sink;
+;;;
+scipiex;;;2
+1;<com.yxx.jiejie.SendThread: java.lang.String sendPostRequest(java.lang.String,java.util.Map,java.lang.String)>;sink;
+2;<com.yxx.jiejie.SMSListenerService$1: void onReceive(android.content.Context,android.content.Intent)>;source;
+2;<com.yxx.jiejie.SendThread: java.lang.String sendPostRequest(java.lang.String,java.util.Map,java.lang.String)>;sink;
+;;;
+slocker_android_samp;;;
+1;<com.yxx.jiejie.SendThread: java.lang.String sendPostRequest(java.lang.String,java.util.Map,java.lang.String)>;sink;2
+2;<com.yxx.jiejie.SMSListenerService$1: void onReceive(android.content.Context,android.content.Intent)>;source;
+2;<com.yxx.jiejie.SendThread: java.lang.String sendPostRequest(java.lang.String,java.util.Map,java.lang.String)>;sink;
+;;;
+smsstealer_kysn_assassincreed_android_samp;;;2
+4;<com.dsifakf.aoakmnq.CheckUpdate$1: void setParam2(java.lang.String)>;sink;
+5;<com.dsifakf.aoakmnq.CheckUpdate$1: void GoMessage(java.lang.String,java.lang.String)>;sink;
+;;;
+sms_google;;;2
+4;<com.dsifakf.aoakmnq.CheckUpdate$1: void setParam2(java.lang.String)>;sink;
+5;<com.dsifakf.aoakmnq.CheckUpdate$1: void GoMessage(java.lang.String,java.lang.String)>;sink;
+;;;
+sms_send_locker_qqmagic;;;3
+1;<com.qqmagic.Fr: void onReceive(android.content.Context,android.content.Intent)>;source;
+1;<com.qqmagic.Fr: void onReceive(android.content.Context,android.content.Intent)>;sink;
+2;<com.qqmagic.Fr: void onReceive(android.content.Context,android.content.Intent)>;source;
+2;<com.qqmagic.Fr: void onReceive(android.content.Context,android.content.Intent)>;sink;
+3;<com.qqmagic.Fr: void onReceive(android.content.Context,android.content.Intent)>;source;
+3;<com.qqmagic.Fr: void onReceive(android.content.Context,android.content.Intent)>;sink;
+;;;
+the_interview_movieshow;;;1
+1;<com.movieshow.down.Badaccents: void playMusic()>;sink;
+;;;
+xbot_android_samp;;;2
+1;<com.address.core.Script: java.lang.Object call(java.lang.String,java.lang.Object[])>;sink;
+3;<com.address.core.xAPI: java.util.ArrayList getContacts()>;source;
+;;;42
+;;;

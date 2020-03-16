@@ -100,6 +100,7 @@ import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 import soot.jimple.infoflow.taintWrappers.ITaintWrapperDataFlowAnalysis;
 import soot.jimple.infoflow.util.SystemClassHandler;
 import soot.jimple.infoflow.values.IValueProvider;
+import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.options.Options;
 import soot.util.HashMultiMap;
 import soot.util.MultiMap;
@@ -1447,7 +1448,8 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 				perfData.setTotalRuntimeSeconds((int) Math.round((System.nanoTime() - beforeEntryPoint) / 1E9));
 			}
 		}
-
+		CallGraph cg = Scene.v().getCallGraph();
+		EdgeInCallGraphTester.test(cg);
 		// We don't need the computed callbacks anymore
 		this.callbackMethods.clear();
 		this.fragmentClasses.clear();

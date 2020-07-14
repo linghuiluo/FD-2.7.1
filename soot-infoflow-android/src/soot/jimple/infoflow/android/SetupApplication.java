@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import cgs.CGSerializer;
 import heros.solver.Pair;
 import soot.G;
 import soot.Main;
@@ -1068,7 +1069,7 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		else
 			Options.v().set_android_jars(androidJar);
 		Options.v().set_src_prec(Options.src_prec_apk_class_jimple);
-		Options.v().set_keep_line_number(false);
+		Options.v().set_keep_line_number(true);
 		Options.v().set_keep_offset(false);
 		Options.v().set_throw_analysis(Options.throw_analysis_dalvik);
 		Options.v().set_process_multiple_dex(config.getMergeDexFiles());
@@ -1449,7 +1450,9 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 			}
 		}
 		CallGraph cg = Scene.v().getCallGraph();
-		EdgeInCallGraphTester.test(cg);
+		CGSerializer.serialize(cg,
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "_cg_FD_271.json");
+
 		// We don't need the computed callbacks anymore
 		this.callbackMethods.clear();
 		this.fragmentClasses.clear();

@@ -905,6 +905,7 @@ public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
 	private final AnalysisFileConfiguration analysisFileConfig = new AnalysisFileConfiguration();
 
 	private SootIntegrationMode sootIntegrationMode = SootIntegrationMode.CreateNewInstace;
+	private boolean useDummyMainClassFromGenCG = false;
 	private boolean mergeDexFiles = false;
 
 	public InfoflowAndroidConfiguration() {
@@ -1087,6 +1088,15 @@ public class InfoflowAndroidConfiguration extends InfoflowConfiguration {
 		} else if (!sourceSinkConfig.equals(other.sourceSinkConfig))
 			return false;
 		return true;
+	}
+
+	public boolean getUseDummyMainMethodFromGenCG() {
+		return useDummyMainClassFromGenCG;
+	}
+
+	public void setEnableUseDummyMainClassFromGenCG(boolean useDummyMainClassFromGenCG) {
+		this.useDummyMainClassFromGenCG = useDummyMainClassFromGenCG;
+
 	}
 
 }

@@ -86,6 +86,8 @@ public class MainClass {
 	private static final String OPTION_TAINT_WRAPPER_FILE = "t";
 
 	// Individual settings
+	private static final String OPTION_USE_DUMMYMAINCLASS_FROM_GENCG = "gencg";
+
 	private static final String OPTION_ACCESS_PATH_LENGTH = "al";
 	private static final String OPTION_NO_THIS_CHAIN_REDUCTION = "nr";
 	private static final String OPTION_FLOW_INSENSITIVE_ALIASING = "af";
@@ -165,6 +167,7 @@ public class MainClass {
 		options.addOption(OPTION_TAINT_WRAPPER_FILE, "taintwrapperfile", true, "Definition file for the taint wrapper");
 
 		// Individual settings
+		options.addOption(OPTION_USE_DUMMYMAINCLASS_FROM_GENCG, "gencg", false, "Use dummy main class from GenCG");
 		options.addOption(OPTION_ACCESS_PATH_LENGTH, "aplength", true, "Maximum access path length");
 		options.addOption(OPTION_NO_THIS_CHAIN_REDUCTION, "nothischainreduction", false,
 				"Disable reduction of inner class chains");
@@ -701,6 +704,8 @@ public class MainClass {
 			if (aplength != null)
 				config.getAccessPathConfiguration().setAccessPathLength(aplength);
 		}
+		if (cmd.hasOption(OPTION_USE_DUMMYMAINCLASS_FROM_GENCG))
+			config.setEnableUseDummyMainClassFromGenCG(true);
 		if (cmd.hasOption(OPTION_NO_THIS_CHAIN_REDUCTION))
 			config.getAccessPathConfiguration().setUseThisChainReduction(false);
 		if (cmd.hasOption(OPTION_FLOW_INSENSITIVE_ALIASING))

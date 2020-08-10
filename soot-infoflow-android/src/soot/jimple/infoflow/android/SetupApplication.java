@@ -998,6 +998,7 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 	 *            that component, or null to create main method for all components
 	 */
 	private void createMainMethod(SootClass component) {
+
 		// There is no need to create a main method if we don't want to generate
 		// a callgraph
 		if (config.getSootIntegrationMode() == SootIntegrationMode.UseExistingCallgraph)
@@ -1035,11 +1036,12 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		final String androidJar = config.getAnalysisFileConfig().getAndroidPlatformDir();
 		final String apkFileLocation = config.getAnalysisFileConfig().getTargetAPKFile();
 		final String additionalClasspath = config.getAnalysisFileConfig().getAdditionalClasspath();
-
 		String classpath = forceAndroidJar ? androidJar : Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		if (additionalClasspath != null && !additionalClasspath.isEmpty())
 			classpath += File.pathSeparator + additionalClasspath;
-		logger.debug("soot classpath: " + classpath);
+		classpath += File.pathSeparator + System.getProperty("java.home") + File.separator + "lib" + File.separator
+				+ "rt.jar";
+		logger.info("soot classpath: " + classpath);
 		return classpath;
 	}
 
@@ -1081,6 +1083,7 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 			sootConfig.setSootOptions(Options.v(), config);
 
 		Options.v().set_soot_classpath(getClasspath());
+
 		Main.v().autoSetOptions();
 		configureCallgraph();
 
@@ -1357,8 +1360,11 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 				SootClass entrypoint = entrypointWorklist.remove(0);
 				processEntryPoint(sourcesAndSinks, resultAggregator, entrypointWorklist.size(), entrypoint);
 			}
-		} else
+		} else if (config.getUseDummyMainMethodFromGenCG()) {
+			processGenCGEntryPoint(sourcesAndSinks, resultAggregator);
+		} else {
 			processEntryPoint(sourcesAndSinks, resultAggregator, -1, null);
+		}
 
 		// Write the results to disk if requested
 		serializeResults(resultAggregator.getAggregatedResults(), resultAggregator.getLastICFG());
@@ -1367,6 +1373,78 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		this.infoflow = null;
 		resultAggregator.clearLastResults();
 		return resultAggregator.getAggregatedResults();
+	}
+
+	protected void processGenCGEntryPoint(ISourceSinkDefinitionProvider sourcesAndSinks,
+			MultiRunResultAggregator resultAggregator) {
+		long beforeEntryPoint = System.nanoTime();
+		long callbackDuration = System.nanoTime();
+
+		SootClass mainClass = Scene.v().forceResolve("averroes.DummyMainClass", SootClass.BODIES);
+		mainClass.setApplicationClass();
+		SootMethod mainMethod = mainClass.getMethodByName("main");
+		Scene.v().setMainClass(mainClass);
+
+		// add static constructor of Library into the dummyMainClass.
+		SootClass libraryClass = Scene.v().getSootClass("averroes.Library");
+		SootMethod libraryMethod = libraryClass.getMethodByName("<clinit>");
+
+		List<SootMethod> entryPoints = new ArrayList<>();
+		entryPoints.add(libraryMethod);
+		entryPoints.addAll(Scene.v().getEntryPoints());
+		if (!entryPoints.contains(mainMethod))
+			entryPoints.add(mainMethod);
+		Scene.v().setEntryPoints(entryPoints);
+		Scene.v().loadNecessaryClasses();
+
+		// Construct the actual callgraph
+		logger.info("Constructing the callgraph...");
+		PackManager.v().getPack("cg").apply();
+
+		CallGraph cg = Scene.v().getCallGraph();
+		CGSerializer.serialize(cg,
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "_cg_FD_271.json");
+
+		// Create and run the data flow tracker
+		infoflow = createInfoflow();
+		infoflow.addResultsAvailableHandler(resultAggregator);
+		infoflow.runAnalysis(sourceSinkManager, mainMethod);
+
+		// Update the statistics
+		if (config.getLogSourcesAndSinks() && infoflow.getCollectedSources() != null)
+			this.collectedSources.addAll(infoflow.getCollectedSources());
+		if (config.getLogSourcesAndSinks() && infoflow.getCollectedSinks() != null)
+			this.collectedSinks.addAll(infoflow.getCollectedSinks());
+
+		// Print out the found results
+		{
+			int resCount = resultAggregator.getLastResults() == null ? 0 : resultAggregator.getLastResults().size();
+
+			logger.info("Found {} leaks", resCount);
+		}
+
+		// Update the performance object with the real data
+		{
+			InfoflowResults lastResults = resultAggregator.getLastResults();
+			if (lastResults != null) {
+				InfoflowPerformanceData perfData = lastResults.getPerformanceData();
+				perfData.setCallgraphConstructionSeconds((int) callbackDuration);
+				perfData.setTotalRuntimeSeconds((int) Math.round((System.nanoTime() - beforeEntryPoint) / 1E9));
+			}
+		}
+		/**
+		 * CallGraph cg = Scene.v().getCallGraph(); CGSerializer.serialize(cg,
+		 * config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") +
+		 * "_cg_FD_271.json");
+		 **/
+
+		// We don't need the computed callbacks anymore
+		this.callbackMethods.clear();
+		this.fragmentClasses.clear();
+
+		// Notify our result handlers
+		for (ResultsAvailableHandler handler : resultsAvailableHandlers)
+			handler.onResultsAvailable(resultAggregator.getLastICFG(), resultAggregator.getLastResults());
 	}
 
 	/**
@@ -1491,12 +1569,12 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 	 */
 	private IInPlaceInfoflow createInfoflow() {
 		// Some sanity checks
-		if (config.getSootIntegrationMode().needsToBuildCallgraph()) {
-			if (entryPointCreator == null)
-				throw new RuntimeException("No entry point available");
-			if (entryPointCreator.getComponentToEntryPointInfo() == null)
-				throw new RuntimeException("No information about component entry points available");
-		}
+		if (!config.getUseDummyMainMethodFromGenCG())
+			if (config.getSootIntegrationMode().needsToBuildCallgraph()) {
+				if (entryPointCreator == null)
+					if (entryPointCreator.getComponentToEntryPointInfo() == null)
+						throw new RuntimeException("No information about component entry points available");
+			}
 
 		// Get the component lifecycle methods
 		Collection<SootMethod> lifecycleMethods = Collections.emptySet();

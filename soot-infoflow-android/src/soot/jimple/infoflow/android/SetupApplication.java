@@ -12,7 +12,9 @@ package soot.jimple.infoflow.android;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -1065,7 +1068,11 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		else
 			Options.v().set_output_format(Options.output_format_none);
 		Options.v().set_whole_program(true);
-		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
+		ArrayList<String> list = new ArrayList<>();
+		list.add(apkFileLocation);
+		if (config.getUseDummyMainMethodFromGenCG())
+			list.add(androidJar);
+		Options.v().set_process_dir(list);
 		if (forceAndroidJar)
 			Options.v().set_force_android_jar(androidJar);
 		else
@@ -1076,14 +1083,17 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		Options.v().set_throw_analysis(Options.throw_analysis_dalvik);
 		Options.v().set_process_multiple_dex(config.getMergeDexFiles());
 		Options.v().set_ignore_resolution_errors(true);
-
+		Options.v().set_verbose(true);
 		// Set the Soot configuration options. Note that this will needs to be
 		// done before we compute the classpath.
 		if (sootConfig != null)
 			sootConfig.setSootOptions(Options.v(), config);
 
 		Options.v().set_soot_classpath(getClasspath());
-
+		if (config.getUseDummyMainMethodFromGenCG())
+			Options.v().set_exclude(
+					Options.v().exclude().stream().filter(c -> !c.equals("android.*")).collect(Collectors.toList()));
+		logger.info("excluded packages: " + Options.v().exclude());
 		Main.v().autoSetOptions();
 		configureCallgraph();
 
@@ -1375,27 +1385,44 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		return resultAggregator.getAggregatedResults();
 	}
 
+	/**
+	 * Need to fix this.
+	 * 
+	 * @param sourcesAndSinks
+	 * @param resultAggregator
+	 */
 	protected void processGenCGEntryPoint(ISourceSinkDefinitionProvider sourcesAndSinks,
 			MultiRunResultAggregator resultAggregator) {
 		long beforeEntryPoint = System.nanoTime();
 		long callbackDuration = System.nanoTime();
 
-		SootClass mainClass = Scene.v().forceResolve("averroes.DummyMainClass", SootClass.BODIES);
+		SootClass mainClass = Scene.v().forceResolve("averroes.DummyMainClass", SootClass.SIGNATURES);
+		mainClass.setResolvingLevel(SootClass.BODIES);
 		mainClass.setApplicationClass();
+		Scene.v().loadClassAndSupport(mainClass.getName());
 		SootMethod mainMethod = mainClass.getMethodByName("main");
 		Scene.v().setMainClass(mainClass);
 
 		// add static constructor of Library into the dummyMainClass.
-		SootClass libraryClass = Scene.v().getSootClass("averroes.Library");
+		SootClass libraryClass = Scene.v().forceResolve("averroes.Library", SootClass.SIGNATURES);
+		libraryClass.setResolvingLevel(SootClass.BODIES);
+		Scene.v().loadClassAndSupport(libraryClass.getName());
 		SootMethod libraryMethod = libraryClass.getMethodByName("<clinit>");
 
 		List<SootMethod> entryPoints = new ArrayList<>();
 		entryPoints.add(libraryMethod);
-		entryPoints.addAll(Scene.v().getEntryPoints());
 		if (!entryPoints.contains(mainMethod))
 			entryPoints.add(mainMethod);
 		Scene.v().setEntryPoints(entryPoints);
-		Scene.v().loadNecessaryClasses();
+
+		try {
+			PrintWriter writer = new PrintWriter(new FileOutputStream(new File("Library.jimple")));
+			soot.Printer.v().printTo(libraryClass, writer);
+			writer.flush();
+			writer.close();
+		} catch (Exception e) {
+
+		}
 
 		// Construct the actual callgraph
 		logger.info("Constructing the callgraph...");
@@ -1405,6 +1432,9 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		CGSerializer.serialize(cg,
 				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "_cg_FD_271.json");
 
+		sourceSinkManager = new AccessPathBasedSourceSinkManager(sourceSinkProvider.getSources(),
+				sourceSinkProvider.getSinks(), config);
+		sourceSinkManager.initialize();
 		// Create and run the data flow tracker
 		infoflow = createInfoflow();
 		infoflow.addResultsAvailableHandler(resultAggregator);

@@ -11,6 +11,7 @@ package soot.jimple.infoflow;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -179,7 +180,10 @@ public class Infoflow extends AbstractInfoflow {
 		// use it as entryPoint and store our real entryPoints
 		this.dummyMainMethod = entryPointCreator.createDummyMain();
 		this.additionalEntryPointMethods = entryPointCreator.getAdditionalMethods();
-		Scene.v().setEntryPoints(Collections.singletonList(dummyMainMethod));
+		List<SootMethod> entryPoints = new ArrayList<>();
+		entryPoints.add(dummyMainMethod);
+		entryPoints.addAll(additionalEntryPointMethods);
+		Scene.v().setEntryPoints(entryPoints);
 
 		// Run the analysis
 		runAnalysis(sourcesSinks, null);
@@ -415,9 +419,9 @@ public class Infoflow extends AbstractInfoflow {
 					int sinkCount = 0;
 					logger.info("Looking for sources and sinks...");
 
-					for (SootMethod sm : getMethodsForSeeds(iCfg))
+					for (SootMethod sm : getMethodsForSeeds(iCfg)) {
 						sinkCount += scanMethodForSourcesSinks(sourcesSinks, forwardProblem, sm);
-
+					}
 					// We optionally also allow additional seeds to be specified
 					if (additionalSeeds != null)
 						for (String meth : additionalSeeds) {

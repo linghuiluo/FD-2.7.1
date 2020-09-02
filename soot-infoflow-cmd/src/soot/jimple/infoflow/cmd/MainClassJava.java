@@ -5,17 +5,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import soot.jimple.infoflow.Infoflow;
 import soot.jimple.infoflow.InfoflowConfiguration;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
+import soot.jimple.infoflow.InfoflowConfiguration.PathReconstructionMode;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.entryPointCreators.IEntryPointCreator;
-import soot.jimple.infoflow.results.ResultSinkInfo;
-import soot.jimple.infoflow.results.ResultSourceInfo;
 import soot.jimple.infoflow.sourcesSinks.definitions.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
-import soot.util.MultiMap;
 
 /**
  * 
@@ -26,6 +27,7 @@ public class MainClassJava {
 
 	private static List<String> sources;
 	private static List<String> sinks;
+	private static Logger logger = LoggerFactory.getLogger(MainClassJava.class);
 
 	public static void main(String... args) throws IOException {
 		Infoflow infoflow = new Infoflow();
@@ -35,7 +37,7 @@ public class MainClassJava {
 		config.setInspectSinks(false);
 		config.setLogSourcesAndSinks(true);
 		infoflow.setTaintWrapper(new EasyTaintWrapper());
-		// config.getPathConfiguration().setPathReconstructionMode(PathReconstructionMode.NoPaths);
+		config.getPathConfiguration().setPathReconstructionMode(PathReconstructionMode.Fast);
 		String appPath = "E:\\Git\\Github\\callgraph\\CGBench_Test\\onlineshop\\organized-app.jar";
 		String libPath = "E:\\Git\\Github\\callgraph\\CGBench_Test\\onlineshop\\averroes-lib-class.jar";
 		libPath += File.pathSeparator + "E:\\Git\\Github\\callgraph\\CGBench_Test\\onlineshop\\placeholder-lib.jar";
@@ -43,10 +45,6 @@ public class MainClassJava {
 		loadSourceAndSinks(sourceSinkFile);
 		IEntryPointCreator entryPointCreator = new GenCGEntryPointCreator();
 		infoflow.computeInfoflow(appPath, libPath, entryPointCreator, sources, sinks);
-		MultiMap<ResultSinkInfo, ResultSourceInfo> res = infoflow.getResults().getResults();
-		if (res != null) {
-			infoflow.getResults().printResults();
-		}
 	}
 
 	private static void loadSourceAndSinks(String sourceSinkFile) {

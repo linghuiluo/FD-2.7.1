@@ -56,6 +56,7 @@ public abstract class AbstractInfoflow implements IInfoflow {
 	protected final boolean forceAndroidJar;
 	protected IInfoflowConfig sootConfig;
 	protected FastHierarchy hierarchy;
+	protected String appPath;
 
 	/**
 	 * Creates a new instance of the abstract info flow problem
@@ -67,15 +68,15 @@ public abstract class AbstractInfoflow implements IInfoflow {
 	/**
 	 * Creates a new instance of the abstract info flow problem
 	 * 
-	 * @param icfgFactory
-	 *            The interprocedural CFG to be used by the InfoFlowProblem
-	 * @param androidPath
-	 *            If forceAndroidJar is false, this is the base directory of the
-	 *            platform files in the Android SDK. If forceAndroidJar is true,
-	 *            this is the full path of a single android.jar file.
-	 * @param forceAndroidJar
-	 *            True if a single platform JAR file shall be forced, false if Soot
-	 *            shall pick the appropriate platform version
+	 * @param icfgFactory     The interprocedural CFG to be used by the
+	 *                        InfoFlowProblem
+	 * @param androidPath     If forceAndroidJar is false, this is the base
+	 *                        directory of the platform files in the Android SDK. If
+	 *                        forceAndroidJar is true, this is the full path of a
+	 *                        single android.jar file.
+	 * @param forceAndroidJar True if a single platform JAR file shall be forced,
+	 *                        false if Soot shall pick the appropriate platform
+	 *                        version
 	 */
 	public AbstractInfoflow(BiDirICFGFactory icfgFactory, String androidPath, boolean forceAndroidJar) {
 		if (icfgFactory == null) {
@@ -145,10 +146,8 @@ public abstract class AbstractInfoflow implements IInfoflow {
 	/**
 	 * Appends two elements to build a classpath
 	 * 
-	 * @param appPath
-	 *            The first entry of the classpath
-	 * @param libPath
-	 *            The second entry of the classpath
+	 * @param appPath The first entry of the classpath
+	 * @param libPath The second entry of the classpath
 	 * @return The concatenated classpath
 	 */
 	private String appendClasspath(String appPath, String libPath) {
@@ -165,29 +164,26 @@ public abstract class AbstractInfoflow implements IInfoflow {
 	/**
 	 * Initializes Soot.
 	 * 
-	 * @param appPath
-	 *            The application path containing the analysis client
-	 * @param libPath
-	 *            The Soot classpath containing the libraries
-	 * @param classes
-	 *            The set of classes that shall be checked for data flow analysis
-	 *            seeds. All sources in these classes are used as seeds.
+	 * @param appPath The application path containing the analysis client
+	 * @param libPath The Soot classpath containing the libraries
+	 * @param classes The set of classes that shall be checked for data flow
+	 *                analysis seeds. All sources in these classes are used as
+	 *                seeds.
 	 */
 	protected void initializeSoot(String appPath, String libPath, Collection<String> classes) {
+		this.appPath = appPath;
 		initializeSoot(appPath, libPath, classes, "");
 	}
 
 	/**
 	 * Initializes Soot.
 	 * 
-	 * @param appPath
-	 *            The application path containing the analysis client
-	 * @param libPath
-	 *            The Soot classpath containing the libraries
-	 * @param classes
-	 *            The set of classes that shall be checked for data flow analysis
-	 *            seeds. All sources in these classes are used as seeds. If a
-	 *            non-empty extra seed is given, this one is used too.
+	 * @param appPath The application path containing the analysis client
+	 * @param libPath The Soot classpath containing the libraries
+	 * @param classes The set of classes that shall be checked for data flow
+	 *                analysis seeds. All sources in these classes are used as
+	 *                seeds. If a non-empty extra seed is given, this one is used
+	 *                too.
 	 */
 	protected void initializeSoot(String appPath, String libPath, Collection<String> classes, String extraSeed) {
 		// reset Soot:

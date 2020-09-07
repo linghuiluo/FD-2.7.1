@@ -12,9 +12,7 @@ package soot.jimple.infoflow.android;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1120,6 +1118,10 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		case AutomaticSelection:
 		case SPARK:
 			Options.v().setPhaseOption("cg.spark", "on");
+			// Options.v().setPhaseOption("cg.spark", "dump-pag:true");
+			// Options.v().setPhaseOption("cg.spark", "dump-html:true");
+			// Options.v().setPhaseOption("cg.spark", "dump-solution:true");
+			Options.v().setPhaseOption("cg.spark", "verbose:true");
 			break;
 		case GEOM:
 			Options.v().setPhaseOption("cg.spark", "on");
@@ -1414,15 +1416,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		if (!entryPoints.contains(mainMethod))
 			entryPoints.add(mainMethod);
 		Scene.v().setEntryPoints(entryPoints);
-
-		try {
-			PrintWriter writer = new PrintWriter(new FileOutputStream(new File("Library.jimple")));
-			soot.Printer.v().printTo(libraryClass, writer);
-			writer.flush();
-			writer.close();
-		} catch (Exception e) {
-
-		}
 
 		// Construct the actual callgraph
 		logger.info("Constructing the callgraph...");

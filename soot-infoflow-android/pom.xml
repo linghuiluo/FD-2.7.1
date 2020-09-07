@@ -139,11 +139,6 @@
 			<artifactId>protobuf-java</artifactId>
 			<version>2.5.0</version>
 		</dependency>
-		<dependency>
-			<groupId>de.upb.swt</groupId>
-			<artifactId>CGSerializer</artifactId>
-			<version>0.0.2</version>
-		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>

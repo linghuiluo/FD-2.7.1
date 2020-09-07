@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.tud.sse</groupId>
@@ -8,13 +9,13 @@
 	<version>2.7.1</version>
 	<description>Soot extending data flow tracking components for Java</description>
 	<packaging>jar</packaging>
-	
+
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
+
 	<build>
 		<finalName>soot-infoflow-classes</finalName>
 		<sourceDirectory>src</sourceDirectory>
@@ -38,7 +39,7 @@
 					</includes>
 				</configuration>
 			</plugin>
-      		<plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<descriptorRefs>
@@ -90,14 +91,14 @@
 				</executions>
 			</plugin>
 		</plugins>
-		
+
 		<resources>
-	        <resource>
-	            <directory>.</directory>
-	            <includes>
-	                <include>EasyTaintWrapperSource.txt</include>
-	            </includes>
-	        </resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>EasyTaintWrapperSource.txt</include>
+				</includes>
+			</resource>
 		</resources>
 	</build>
 
@@ -139,15 +140,20 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>net.sf.trove4j</groupId>
-		    <artifactId>trove4j</artifactId>
-		    <version>3.0.3</version>
+			<groupId>net.sf.trove4j</groupId>
+			<artifactId>trove4j</artifactId>
+			<version>3.0.3</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>
-		    <groupId>com.google.guava</groupId>
-		    <artifactId>guava</artifactId>
-		    <version>25.1-jre</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>25.1-jre</version>
+		</dependency>
+		<dependency>
+			<groupId>de.upb.swt</groupId>
+			<artifactId>CGSerializer</artifactId>
+			<version>0.0.2</version>
 		</dependency>
 	</dependencies>
 

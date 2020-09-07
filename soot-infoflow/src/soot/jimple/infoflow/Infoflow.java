@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cgs.CGSerializer;
 import soot.G;
 import soot.MethodOrMethodContext;
 import soot.PackManager;
@@ -94,6 +95,7 @@ import soot.jimple.infoflow.threading.DefaultExecutorFactory;
 import soot.jimple.infoflow.threading.IExecutorFactory;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
 import soot.jimple.infoflow.util.SystemClassHandler;
+import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.ReachableMethods;
 import soot.options.Options;
 
@@ -295,6 +297,10 @@ public class Infoflow extends AbstractInfoflow {
 				releaseCallgraph();
 				constructCallgraph();
 			}
+
+			CallGraph cg = Scene.v().getCallGraph();
+
+			CGSerializer.serialize(cg, appPath.replace(".jar", "_cg_FD_271.json"));
 
 			if (config.getCallgraphAlgorithm() != CallgraphAlgorithm.OnDemand)
 				logger.info("Callgraph has {} edges", Scene.v().getCallGraph().size());

@@ -230,8 +230,17 @@ public class MainClass {
 	}
 
 	public static void main(String[] args) throws Exception {
-		MainClass main = new MainClass();
-		main.run(args);
+		if (args.length < 1)
+			return;
+		String framework = args[0];
+		String[] subArgs = new String[args.length - 1];
+		for (int i = 1; i < args.length; i++)
+			subArgs[i - 1] = args[i];
+		if (framework.equals("ANDROID")) {
+			new MainClass().run(subArgs);
+		} else {
+			new MainClassForJar().run(subArgs);
+		}
 	}
 
 	private void run(String[] args) throws Exception {

@@ -298,9 +298,10 @@ public class Infoflow extends AbstractInfoflow {
 				constructCallgraph();
 			}
 
-			CallGraph cg = Scene.v().getCallGraph();
-
-			CGSerializer.serialize(cg, appPath.replace(".jar", "_cg_FD_271.json"));
+			if (appPath != null) {
+				CallGraph cg = Scene.v().getCallGraph();
+				CGSerializer.serialize(cg, appPath.replace(".jar", "_cg_FD_271.json"));
+			}
 
 			if (config.getCallgraphAlgorithm() != CallgraphAlgorithm.OnDemand)
 				logger.info("Callgraph has {} edges", Scene.v().getCallGraph().size());

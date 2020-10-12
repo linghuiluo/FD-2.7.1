@@ -69,7 +69,6 @@ public class MainClassForJar {
 		String resultsFile = cmd.getOptionValue("o");
 		if (resultsFile == null)
 			resultsFile = appPath.replace(".jar", ".xml");
-
 		Infoflow infoflow = new Infoflow();
 		InfoflowConfiguration config = infoflow.getConfig();
 		config.setCallgraphAlgorithm(CallgraphAlgorithm.SPARK);

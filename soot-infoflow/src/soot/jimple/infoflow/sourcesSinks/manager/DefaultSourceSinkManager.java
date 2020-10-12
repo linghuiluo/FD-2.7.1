@@ -198,20 +198,20 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 
 		// Check for a direct match
 		SootMethod callee = sCallSite.getInvokeExpr().getMethod();
-		if (this.sources.contains(callee))
+		if (this.sources.contains(callee) || this.sourceDefs.contains(callee.getSignature()))
 			return true;
 
 		// Check whether we have any of the interfaces on the list
 		String subSig = callee.getSubSignature();
 		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
 			SootMethod sm = i.getMethodUnsafe(subSig);
-			if (sm != null && this.sources.contains(sm))
+			if (sm != null && (this.sources.contains(sm) || this.sourceDefs.contains(sm.getSignature())))
 				return true;
 		}
 
 		// Ask the CFG in case we don't know any better
 		for (SootMethod sm : manager.getICFG().getCalleesOfCallAt(sCallSite)) {
-			if (this.sources.contains(sm))
+			if (this.sources.contains(sm) || this.sourceDefs.contains(sm.getSignature()))
 				return true;
 		}
 
@@ -274,20 +274,20 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 	private SootMethodAndClass isSinkMethod(InfoflowManager manager, Stmt sCallSite) {
 		// Is the method directly in the sink set?
 		SootMethod callee = sCallSite.getInvokeExpr().getMethod();
-		if (this.sinks.contains(callee))
+		if (this.sinks.contains(callee) || this.sinkDefs.contains(callee.getSignature()))
 			return new SootMethodAndClass(callee);
 
 		// Check whether we have any of the interfaces on the list
 		String subSig = callee.getSubSignature();
 		for (SootClass i : interfacesOf.getUnchecked(sCallSite.getInvokeExpr().getMethod().getDeclaringClass())) {
 			SootMethod sm = i.getMethodUnsafe(subSig);
-			if (sm != null && this.sinks.contains(sm))
+			if (sm != null && (this.sinks.contains(sm) || this.sinkDefs.contains(sm.getSignature())))
 				return new SootMethodAndClass(sm);
 		}
 
 		// Ask the CFG in case we don't know any better
 		for (SootMethod sm : manager.getICFG().getCalleesOfCallAt(sCallSite)) {
-			if (this.sinks.contains(sm))
+			if (this.sinks.contains(sm) || this.sinkDefs.contains(sm.getSignature()))
 				return new SootMethodAndClass(sm);
 		}
 
@@ -324,7 +324,7 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 				if (sm != null)
 					sources.add(sm);
 			}
-			sourceDefs = null;
+			// sourceDefs = null;
 		}
 
 		if (sinkDefs != null) {
@@ -334,7 +334,7 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 				if (sm != null)
 					sinks.add(sm);
 			}
-			sinkDefs = null;
+			// sinkDefs = null;
 		}
 
 		if (returnTaintMethodDefs != null) {

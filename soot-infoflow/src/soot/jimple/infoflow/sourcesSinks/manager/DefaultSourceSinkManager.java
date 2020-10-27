@@ -22,6 +22,7 @@ import heros.solver.IDESolver;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Unit;
 import soot.Value;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.IdentityStmt;
@@ -35,8 +36,13 @@ import soot.jimple.infoflow.data.AccessPath;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.sourcesSinks.definitions.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.sourcesSinks.definitions.MethodSourceSinkDefinition;
+import soot.jimple.infoflow.sourcesSinks.definitions.ParameterSourceSinkDefinition;
 import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkDefinition;
 import soot.jimple.infoflow.util.SystemClassHandler;
+import soot.jimple.internal.JIdentityStmt;
+import soot.tagkit.AnnotationTag;
+import soot.tagkit.VisibilityAnnotationTag;
+import soot.tagkit.VisibilityParameterAnnotationTag;
 
 /**
  * A {@link ISourceSinkManager} working on lists of source and sink methods
@@ -47,6 +53,7 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 
 	private Collection<String> sourceDefs;
 	private Collection<String> sinkDefs;
+	private Collection<String> parameterSourceDefs;
 
 	private Collection<SootMethod> sources;
 	private Collection<SootMethod> sinks;
@@ -103,6 +110,15 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 		this.returnTaintMethodDefs = (returnTaintMethods != null) ? returnTaintMethods : new HashSet<String>();
 	}
 
+	public DefaultSourceSinkManager(Collection<String> sources, Collection<String> sinks,
+			Collection<String> parameterSources) {
+		this.sourceDefs = sources;
+		this.sinkDefs = sinks;
+		this.parameterSourceDefs = parameterSources;
+		this.parameterTaintMethodDefs = null;
+		this.returnTaintMethodDefs = null;
+	}
+
 	/**
 	 * Creates a new instance of the {@link DefaultSourceSinkManager} class
 	 * 
@@ -118,6 +134,10 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 				MethodSourceSinkDefinition mssd = (MethodSourceSinkDefinition) ssd;
 				sourceDefs.add(mssd.getMethod().getSignature());
 			}
+			if (ssd instanceof ParameterSourceSinkDefinition) {
+				ParameterSourceSinkDefinition pssd = (ParameterSourceSinkDefinition) ssd;
+				parameterSourceDefs.add(pssd.getParameterSignature());
+			}
 		}
 
 		// Load the sinks
@@ -127,6 +147,7 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 				sinkDefs.add(mssd.getMethod().getSignature());
 			}
 		}
+
 	}
 
 	/**
@@ -145,6 +166,49 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 	 */
 	public void setSinks(List<String> sinks) {
 		this.sinkDefs = sinks;
+	}
+
+	public Set<Stmt> getParameterSourceInfo(SootMethod m, InfoflowManager manager) {
+		Set<Stmt> stmts = new HashSet<>();
+		VisibilityParameterAnnotationTag tag = (VisibilityParameterAnnotationTag) m
+				.getTag("VisibilityParameterAnnotationTag");
+		Set<Value> paraSources = new HashSet<>();
+		if (tag != null) {
+			for (int i = 0; i < tag.getVisibilityAnnotations().size(); i++) {
+				VisibilityAnnotationTag t = tag.getVisibilityAnnotations().get(i);
+				if (t != null)
+					for (AnnotationTag at : t.getAnnotations()) {
+						String type = at.getType();
+						String typeInSoot = type.substring(1, type.length() - 1).replace("/", ".");
+						if (this.parameterSourceDefs.contains(typeInSoot)) {
+							Value paraRef = m.getActiveBody().getParameterRefs().get(i);
+							paraSources.add(paraRef);
+							// TODO add this to the infoflow manager
+							AccessPath targetAP = manager.getAccessPathFactory()
+									.createAccessPath(m.getActiveBody().getParameterLocal(i), true);
+						}
+					}
+			}
+		}
+		if (!paraSources.isEmpty()) {
+			for (Unit u : m.getActiveBody().getUnits()) {
+				if (paraSources.isEmpty())
+					break;
+				if (u instanceof JIdentityStmt) {
+					Value right = ((JIdentityStmt) u).getRightOp();
+					boolean remove = false;
+					if (paraSources.contains(right)) {
+						stmts.add((Stmt) u);
+						remove = true;
+
+					}
+					if (remove)
+						paraSources.remove(right);
+
+				}
+			}
+		}
+		return stmts;
 	}
 
 	@Override

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import soot.jimple.infoflow.android.data.AndroidMethod;
 import soot.jimple.infoflow.sourcesSinks.definitions.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.sourcesSinks.definitions.MethodSourceSinkDefinition;
+import soot.jimple.infoflow.sourcesSinks.definitions.ParameterSourceSinkDefinition;
 import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkDefinition;
 import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkType;
 
@@ -45,12 +46,14 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 
 	private Map<String, AndroidMethod> methods = null;
 	private Set<SourceSinkDefinition> sourceList = null;
+	private Set<SourceSinkDefinition> parameterSourceList = null;
 	private Set<SourceSinkDefinition> sinkList = null;
 	private Set<SourceSinkDefinition> neitherList = null;
 
 	private static final int INITIAL_SET_SIZE = 10000;
 
 	private List<String> data;
+	private final String regexForParaSource = "(.+)\\s+->\\s+(.+)$";
 	private final String regex = "^<(.+):\\s*(.+)\\s+(.+)\\s*\\((.*)\\)>\\s*(.*?)(\\s+->\\s+(.*))?$";
 	// private final String regexNoRet =
 	// "^<(.+):\\s(.+)\\s?(.+)\\s*\\((.*)\\)>\\s+(.*?)(\\s+->\\s+(.*))?+$";
@@ -111,6 +114,12 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 		return this.sourceList;
 	}
 
+	public Set<SourceSinkDefinition> getParameterSources() {
+		if (parameterSourceList == null || sourceList == null || sinkList == null)
+			parse();
+		return this.parameterSourceList;
+	}
+
 	@Override
 	public Set<SourceSinkDefinition> getSinks() {
 		if (sourceList == null || sinkList == null)
@@ -121,24 +130,31 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 	private void parse() {
 		methods = new HashMap<>(INITIAL_SET_SIZE);
 		sourceList = new HashSet<>(INITIAL_SET_SIZE);
+		parameterSourceList = new HashSet<>(INITIAL_SET_SIZE);
 		sinkList = new HashSet<>(INITIAL_SET_SIZE);
 		neitherList = new HashSet<>(INITIAL_SET_SIZE);
 
+		Pattern pParaSource = Pattern.compile(regexForParaSource);
 		Pattern p = Pattern.compile(regex);
 		Pattern pNoRet = Pattern.compile(regexNoRet);
 
 		for (String line : this.data) {
 			if (line.isEmpty() || line.startsWith("%"))
 				continue;
-			Matcher m = p.matcher(line);
-			if (m.find()) {
-				createMethod(m);
+			Matcher mParaSource = pParaSource.matcher(line);
+			if (mParaSource.find()) {
+				addParameterSource(mParaSource);
 			} else {
-				Matcher mNoRet = pNoRet.matcher(line);
-				if (mNoRet.find()) {
-					createMethod(mNoRet);
-				} else
-					logger.warn(String.format("Line does not match: %s", line));
+				Matcher m = p.matcher(line);
+				if (m.find()) {
+					createMethod(m);
+				} else {
+					Matcher mNoRet = pNoRet.matcher(line);
+					if (mNoRet.find()) {
+						createMethod(mNoRet);
+					} else
+						logger.warn(String.format("Line does not match: %s", line));
+				}
 			}
 		}
 
@@ -152,6 +168,14 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 				sinkList.add(singleMethod);
 			if (am.getSourceSinkType() == SourceSinkType.Neither)
 				neitherList.add(singleMethod);
+		}
+	}
+
+	private void addParameterSource(Matcher m) {
+		String classSignature = m.group(1);
+		String type = m.group(2);
+		if ("_PARAMETER_SOURCE_".equals(type)) {
+			this.parameterSourceList.add(new ParameterSourceSinkDefinition(classSignature));
 		}
 	}
 

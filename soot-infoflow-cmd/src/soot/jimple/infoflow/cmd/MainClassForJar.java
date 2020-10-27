@@ -19,7 +19,7 @@ import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowConfiguration.PathReconstructionMode;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.entryPointCreators.IEntryPointCreator;
-import soot.jimple.infoflow.sourcesSinks.definitions.ISourceSinkDefinitionProvider;
+import soot.jimple.infoflow.sourcesSinks.definitions.ParameterSourceSinkDefinition;
 import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkDefinition;
 import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
 
@@ -32,6 +32,7 @@ public class MainClassForJar {
 
 	private List<String> sources;
 	private List<String> sinks;
+	private List<String> parameterSources;
 	private Logger logger = LoggerFactory.getLogger(MainClassForJar.class);
 	private Options options = new Options();
 
@@ -81,21 +82,26 @@ public class MainClassForJar {
 		loadSourceAndSinks(sourceSinkFile);
 		IEntryPointCreator entryPointCreator = new GenCGEntryPointCreator();
 		infoflow.addResultsAvailableHandler(new WriteResultsToXMLHandler(resultsFile, config));
-		infoflow.computeInfoflow(appPath, libPath, entryPointCreator, sources, sinks);
+		infoflow.computeInfoflow(appPath, libPath, entryPointCreator, sources, sinks, parameterSources);
 	}
 
 	private void loadSourceAndSinks(String sourceSinkFile) {
 		sources = new ArrayList<>();
 		sinks = new ArrayList<>();
-		ISourceSinkDefinitionProvider parser;
+		parameterSources = new ArrayList<>();
 		try {
-			parser = PermissionMethodParser.fromFile(sourceSinkFile);
+			PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
 			for (SourceSinkDefinition source : parser.getSources()) {
 				sources.add(source.toString());
+			}
+			for (SourceSinkDefinition source : parser.getParameterSources()) {
+				if (source instanceof ParameterSourceSinkDefinition)
+					parameterSources.add(((ParameterSourceSinkDefinition) source).getParameterSignature());
 			}
 			for (SourceSinkDefinition sink : parser.getSinks()) {
 				sinks.add(sink.toString());
 			}
+
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

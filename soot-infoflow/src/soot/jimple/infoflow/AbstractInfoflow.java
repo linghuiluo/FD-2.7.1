@@ -130,6 +130,12 @@ public abstract class AbstractInfoflow implements IInfoflow {
 		this.computeInfoflow(appPath, libPath, entryPointCreator, new DefaultSourceSinkManager(sources, sinks));
 	}
 
+	public void computeInfoflow(String appPath, String libPath, IEntryPointCreator entryPointCreator,
+			List<String> sources, List<String> sinks, List<String> parameterSources) {
+		this.computeInfoflow(appPath, libPath, entryPointCreator,
+				new DefaultSourceSinkManager(sources, sinks, parameterSources));
+	}
+
 	@Override
 	public void computeInfoflow(String appPath, String libPath, Collection<String> entryPoints,
 			Collection<String> sources, Collection<String> sinks) {

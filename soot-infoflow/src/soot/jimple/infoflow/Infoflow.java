@@ -89,6 +89,7 @@ import soot.jimple.infoflow.solver.executors.InterruptableExecutor;
 import soot.jimple.infoflow.solver.memory.DefaultMemoryManagerFactory;
 import soot.jimple.infoflow.solver.memory.IMemoryManager;
 import soot.jimple.infoflow.solver.memory.IMemoryManagerFactory;
+import soot.jimple.infoflow.sourcesSinks.manager.DefaultSourceSinkManager;
 import soot.jimple.infoflow.sourcesSinks.manager.IOneSourceAtATimeManager;
 import soot.jimple.infoflow.sourcesSinks.manager.ISourceSinkManager;
 import soot.jimple.infoflow.threading.DefaultExecutorFactory;
@@ -1125,6 +1126,19 @@ public class Infoflow extends AbstractInfoflow {
 			if (!isValidSeedMethod(m))
 				return sinkCount;
 
+			if (sourcesSinks instanceof DefaultSourceSinkManager) {
+				DefaultSourceSinkManager ssManager = (DefaultSourceSinkManager) sourcesSinks;
+				Set<Stmt> stmts = ssManager.getParameterSourceInfo(m, manager);
+				if (!stmts.isEmpty()) {
+					for (Stmt stmt : stmts) {
+						forwardProblem.addInitialSeeds(stmt, Collections.singleton(forwardProblem.zeroValue()));
+						if (getConfig().getLogSourcesAndSinks())
+							collectedSources.add(stmt);
+						logger.debug("Parameter source found: {}", stmt);
+					}
+				}
+
+			}
 			// Look for a source in the method. Also look for sinks. If we
 			// have no sink in the program, we don't need to perform any
 			// analysis
@@ -1147,6 +1161,7 @@ public class Infoflow extends AbstractInfoflow {
 
 		}
 		return sinkCount;
+
 	}
 
 	@Override

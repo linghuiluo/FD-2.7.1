@@ -11,6 +11,7 @@
 package soot.jimple.infoflow.sourcesSinks.manager;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +55,8 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 	private Collection<String> sourceDefs;
 	private Collection<String> sinkDefs;
 	private Collection<String> parameterSourceDefs;
+	private HashMap<Stmt, AccessPath> parameterSourceStmtAccessPath;
+	private HashMap<Stmt, String> parameterSourcesStmtDef;
 
 	private Collection<SootMethod> sources;
 	private Collection<SootMethod> sinks;
@@ -168,11 +171,15 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 		this.sinkDefs = sinks;
 	}
 
-	public Set<Stmt> getParameterSourceInfo(SootMethod m, InfoflowManager manager) {
-		Set<Stmt> stmts = new HashSet<>();
+	public void checkIfParameterIsSource(SootMethod m, InfoflowManager manager) {
+		if (this.parameterSourceStmtAccessPath == null)
+			this.parameterSourceStmtAccessPath = new HashMap();
+		if (this.parameterSourcesStmtDef == null)
+			this.parameterSourcesStmtDef = new HashMap();
 		VisibilityParameterAnnotationTag tag = (VisibilityParameterAnnotationTag) m
 				.getTag("VisibilityParameterAnnotationTag");
-		Set<Value> paraSources = new HashSet<>();
+		HashMap<Value, AccessPath> paraSources = new HashMap<>();
+		HashMap<Value, String> paraSourceDefs = new HashMap<>();
 		if (tag != null) {
 			for (int i = 0; i < tag.getVisibilityAnnotations().size(); i++) {
 				VisibilityAnnotationTag t = tag.getVisibilityAnnotations().get(i);
@@ -182,10 +189,10 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 						String typeInSoot = type.substring(1, type.length() - 1).replace("/", ".");
 						if (this.parameterSourceDefs.contains(typeInSoot)) {
 							Value paraRef = m.getActiveBody().getParameterRefs().get(i);
-							paraSources.add(paraRef);
-							// TODO add this to the infoflow manager
 							AccessPath targetAP = manager.getAccessPathFactory()
 									.createAccessPath(m.getActiveBody().getParameterLocal(i), true);
+							paraSources.put(paraRef, targetAP);
+							paraSourceDefs.put(paraRef, typeInSoot);
 						}
 					}
 			}
@@ -197,8 +204,10 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 				if (u instanceof JIdentityStmt) {
 					Value right = ((JIdentityStmt) u).getRightOp();
 					boolean remove = false;
-					if (paraSources.contains(right)) {
-						stmts.add((Stmt) u);
+					if (paraSources.containsKey(right)) {
+						Stmt s = (Stmt) u;
+						this.parameterSourceStmtAccessPath.put(s, paraSources.get(right));
+						this.parameterSourcesStmtDef.put(s, paraSourceDefs.get(right));
 						remove = true;
 
 					}
@@ -208,7 +217,6 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 				}
 			}
 		}
-		return stmts;
 	}
 
 	@Override
@@ -231,11 +239,17 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 		else if (sCallSite instanceof IdentityStmt) {
 			IdentityStmt istmt = (IdentityStmt) sCallSite;
 			if (istmt.getRightOp() instanceof ParameterRef) {
-				ParameterRef pref = (ParameterRef) istmt.getRightOp();
-				SootMethod currentMethod = manager.getICFG().getMethodOf(istmt);
-				if (parameterTaintMethods != null && parameterTaintMethods.contains(currentMethod))
-					targetAP = manager.getAccessPathFactory()
-							.createAccessPath(currentMethod.getActiveBody().getParameterLocal(pref.getIndex()), true);
+				if (this.parameterSourceStmtAccessPath.containsKey(istmt)) {
+					targetAP = this.parameterSourceStmtAccessPath.get(istmt);
+					String parameterSourceDef = this.parameterSourcesStmtDef.get(istmt);
+					return new SourceInfo(new ParameterSourceSinkDefinition(parameterSourceDef), targetAP);
+				} else {
+					ParameterRef pref = (ParameterRef) istmt.getRightOp();
+					SootMethod currentMethod = manager.getICFG().getMethodOf(istmt);
+					if (parameterTaintMethods != null && parameterTaintMethods.contains(currentMethod))
+						targetAP = manager.getAccessPathFactory().createAccessPath(
+								currentMethod.getActiveBody().getParameterLocal(pref.getIndex()), true);
+				}
 			}
 		}
 
@@ -294,7 +308,7 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 		}
 
 		// Check whether the callee is a sink
-		if (this.sinks != null && !sinks.isEmpty() && sCallSite.containsInvokeExpr()) {
+		if (this.sinkDefs != null && !sinkDefs.isEmpty() && sCallSite.containsInvokeExpr()) {
 			InvokeExpr iexpr = sCallSite.getInvokeExpr();
 
 			// Is this method on the list?

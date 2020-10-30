@@ -141,9 +141,11 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 		for (String line : this.data) {
 			if (line.isEmpty() || line.startsWith("%"))
 				continue;
-			Matcher mParaSource = pParaSource.matcher(line);
-			if (mParaSource.find()) {
-				addParameterSource(mParaSource);
+
+			if (line.contains("_PARAMETER_SOURCE_")) {
+				Matcher mParaSource = pParaSource.matcher(line);
+				if (mParaSource.find())
+					addParameterSource(mParaSource);
 			} else {
 				Matcher m = p.matcher(line);
 				if (m.find()) {

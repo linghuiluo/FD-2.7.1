@@ -702,6 +702,7 @@ public class Infoflow extends AbstractInfoflow {
 			if (results == null || results.isEmpty())
 				logger.warn("No results found.");
 			else if (logger.isInfoEnabled()) {
+				int numOfFlows = 0;
 				for (ResultSinkInfo sink : results.getResults().keySet()) {
 					logger.info("The sink {} in method {} was called with values from the following sources:", sink,
 							iCfg.getMethodOf(sink.getStmt()).getSignature());
@@ -714,8 +715,10 @@ public class Infoflow extends AbstractInfoflow {
 								logger.info("\t\t -> " + p);
 							}
 						}
+						numOfFlows++;
 					}
 				}
+				logger.info("Found " + numOfFlows + " taint flows.");
 			}
 
 			// Gather performance data
@@ -1128,17 +1131,9 @@ public class Infoflow extends AbstractInfoflow {
 
 			if (sourcesSinks instanceof DefaultSourceSinkManager) {
 				DefaultSourceSinkManager ssManager = (DefaultSourceSinkManager) sourcesSinks;
-				Set<Stmt> stmts = ssManager.getParameterSourceInfo(m, manager);
-				if (!stmts.isEmpty()) {
-					for (Stmt stmt : stmts) {
-						forwardProblem.addInitialSeeds(stmt, Collections.singleton(forwardProblem.zeroValue()));
-						if (getConfig().getLogSourcesAndSinks())
-							collectedSources.add(stmt);
-						logger.debug("Parameter source found: {}", stmt);
-					}
-				}
-
+				ssManager.checkIfParameterIsSource(m, manager);
 			}
+
 			// Look for a source in the method. Also look for sinks. If we
 			// have no sink in the program, we don't need to perform any
 			// analysis

@@ -13,6 +13,31 @@ public class ParameterSourceSinkDefinition extends SourceSinkDefinition {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return parameterSignature != null;
+	}
+
+	@Override
+	public ISourceSinkCategory getCategory() {
+		return new ISourceSinkCategory() {
+
+			@Override
+			public String getID() {
+				return "PARAMETER SOURCE";
+			}
+
+			@Override
+			public String getHumanReadableDescription() {
+				return "PARAMETER SOURCR: " + parameterSignature;
+			}
+		};
+	}
+
+	public String getParameterSignature() {
+		return parameterSignature;
+	}
+
+	@Override
 	public SourceSinkDefinition getSourceOnlyDefinition() {
 		// TODO Auto-generated method stub
 		return null;
@@ -28,16 +53,6 @@ public class ParameterSourceSinkDefinition extends SourceSinkDefinition {
 	public void merge(SourceSinkDefinition other) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public String getParameterSignature() {
-		return parameterSignature;
 	}
 
 }

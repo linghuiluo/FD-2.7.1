@@ -39,9 +39,7 @@ import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.SourceLocator;
 import soot.Unit;
-import soot.asm.AsmClassSource;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.AbstractInfoflow;
 import soot.jimple.infoflow.IInfoflow;
@@ -1401,7 +1399,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		long callbackDuration = System.nanoTime();
 
 		SootClass mainClass = Scene.v().forceResolve("averroes.DummyMainClass", SootClass.SIGNATURES);
-		AsmClassSource s = (AsmClassSource) SourceLocator.v().getClassSource("averroes.DummyMainClass");
 		mainClass.setResolvingLevel(SootClass.BODIES);
 		mainClass.setApplicationClass();
 		Scene.v().loadClassAndSupport(mainClass.getName());

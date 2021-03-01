@@ -12,3 +12,4 @@ soot-infoflow-android/.classpath
 soot-infoflow-summaries/.classpath
 soot-infoflow-cmd/sootOutput/
 *.jimple
+soot-infoflow-cmd/.classpath

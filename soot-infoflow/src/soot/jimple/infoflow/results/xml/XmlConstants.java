@@ -47,6 +47,7 @@ class XmlConstants {
 		public static final String category = "Category";
 
 		public static final String name = "Name";
+		public static final String id = "ID";
 	}
 
 	class Values {

@@ -31,6 +31,7 @@ public class InfoflowResultsSerializer {
 	protected IInfoflowCFG icfg;
 	protected InfoflowConfiguration config;
 	protected long startTime = 0;
+	private static int id = 0;
 
 	/**
 	 * Creates a new instance of the InfoflowResultsSerializer class
@@ -190,7 +191,9 @@ public class InfoflowResultsSerializer {
 	 * @throws XMLStreamException Thrown if the XML data cannot be written
 	 */
 	private void writeSourceInfo(ResultSourceInfo source, XMLStreamWriter writer) throws XMLStreamException {
+		id++;
 		writer.writeStartElement(XmlConstants.Tags.source);
+		writer.writeAttribute(XmlConstants.Attributes.id, "" + id);
 		writer.writeAttribute(XmlConstants.Attributes.statement, source.getStmt().toString());
 		if (config.getEnableLineNumbers())
 			writer.writeAttribute(XmlConstants.Attributes.linenumber,

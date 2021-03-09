@@ -10,3 +10,4 @@ soot-infoflow-cmd/.settings/org.eclipse.jdt.core.prefs
 soot-infoflow-summaries/.settings/org.eclipse.jdt.core.prefs
 soot-infoflow-android/.classpath
 soot-infoflow-summaries/.classpath
+soot-infoflow-cmd/sootOutput/

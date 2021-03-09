@@ -39,7 +39,7 @@ class XmlConstants {
 		public static final String terminationState = "TerminationState";
 		public static final String statement = "Statement";
 		public static final String method = "Method";
-
+		public static final String linenumber = "LineNumber";
 		public static final String value = "Value";
 		public static final String type = "Type";
 		public static final String taintSubFields = "TaintSubFields";

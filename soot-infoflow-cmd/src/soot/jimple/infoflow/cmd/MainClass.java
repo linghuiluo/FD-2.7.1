@@ -239,7 +239,12 @@ public class MainClass {
 		if (framework.equals("ANDROID")) {
 			new MainClass().run(subArgs);
 		} else {
-			new MainClassForJar().run(subArgs);
+			if (framework.equals("SPRING"))
+				new MainClassForJar().run(subArgs);
+			else {
+				System.err.println(
+						"The first parameter must be ANDROID (for Android apps) or SPRING (for Web apps using Spring framework");
+			}
 		}
 	}
 

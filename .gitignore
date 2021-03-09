@@ -13,3 +13,9 @@ soot-infoflow-summaries/.classpath
 soot-infoflow-cmd/sootOutput/
 *.jimple
 soot-infoflow-cmd/.classpath
+soot-infoflow/.settings/
+soot-infoflow-android/.settings/
+soot-infoflow-cmd/.settings/
+soot-infoflow-summaries/.settings/
+*.project
+*.classpath

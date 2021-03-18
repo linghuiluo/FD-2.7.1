@@ -222,6 +222,18 @@ public class Aliasing {
 
 			// For instance field references, the base local must match
 			if (val instanceof InstanceFieldRef) {
+				if (ap.isStaticFieldRef()) {
+					// FIXME.This block is added to capture the case that a instance field can be
+					// alias to
+					// a static field
+					if (ap.getFirstFieldType().equals(((InstanceFieldRef) val).getBase().getType())) {
+						SootField[] fields = val instanceof FieldRef ? new SootField[] { ((FieldRef) val).getField() }
+								: new SootField[0];
+						if (ap.getLastFieldType().equals(((InstanceFieldRef) val).getField().getType()))
+							return this.manager.getAccessPathFactory()
+									.createAccessPath(((InstanceFieldRef) val).getBase(), fields, true);
+					}
+				}
 				if (!ap.isLocal() && !ap.isInstanceFieldRef())
 					return null;
 				if (((InstanceFieldRef) val).getBase() != ap.getPlainValue())

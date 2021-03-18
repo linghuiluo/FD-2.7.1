@@ -258,6 +258,8 @@ public class AccessPathFactory {
 
 		// Make sure that the actual types are always as precise as the declared
 		// ones. If types become incompatible, we drop the whole access path.
+		// FIXME: the type checking could be an issue if there is a cast from a list to
+		// object.
 		if (config.getEnableTypeChecking()) {
 			if (value != null && value.getType() != baseType) {
 				baseType = TypeUtils.getMorePreciseType(baseType, value.getType());

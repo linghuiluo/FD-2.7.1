@@ -334,7 +334,8 @@ public class Infoflow extends AbstractInfoflow {
 					oneSourceAtATime.nextSource();
 
 				// Create the executor that takes care of the workers
-				int numThreads = Runtime.getRuntime().availableProcessors();
+				// FIXME. Change back 1 to Runtime.getRuntime().availableProcessors();
+				int numThreads = 1;
 				InterruptableExecutor executor = executorFactory.createExecutor(numThreads, true, config);
 				executor.setThreadFactory(new ThreadFactory() {
 
@@ -1092,7 +1093,6 @@ public class Infoflow extends AbstractInfoflow {
 	protected boolean isValidSeedMethod(SootMethod sm) {
 		if (sm == dummyMainMethod)
 			return false;
-
 		// Exclude system classes
 		if (config.getIgnoreFlowsInSystemPackages()
 				&& SystemClassHandler.isClassInSystemPackage(sm.getDeclaringClass().getName()))
@@ -1144,13 +1144,13 @@ public class Infoflow extends AbstractInfoflow {
 					forwardProblem.addInitialSeeds(u, Collections.singleton(forwardProblem.zeroValue()));
 					if (getConfig().getLogSourcesAndSinks())
 						collectedSources.add(s);
-					logger.debug("Source found: {}", u);
+					logger.debug("Source found: {} in method {}", u, m.getSignature());
 				}
 				if (sourcesSinks.getSinkInfo(s, manager, null) != null) {
 					sinkCount++;
 					if (getConfig().getLogSourcesAndSinks())
 						collectedSinks.add(s);
-					logger.debug("Sink found: {}", u);
+					logger.debug("Sink found: {} in method {}", u, m.getSignature());
 				}
 			}
 

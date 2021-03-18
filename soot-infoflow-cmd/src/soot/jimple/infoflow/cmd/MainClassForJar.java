@@ -9,7 +9,6 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +18,11 @@ import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowConfiguration.PathReconstructionMode;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
 import soot.jimple.infoflow.entryPointCreators.IEntryPointCreator;
+import soot.jimple.infoflow.methodSummary.data.provider.LazySummaryProvider;
+import soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper;
 import soot.jimple.infoflow.sourcesSinks.definitions.ParameterSourceSinkDefinition;
 import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkDefinition;
-import soot.jimple.infoflow.taintWrappers.EasyTaintWrapper;
+import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class MainClassForJar {
 				"Compute the taint propagation paths and not just source-to-sink connections. This is a shorthand notation for -pr fast.");
 	}
 
-	public void run(String... args) throws IOException, ParseException {
+	public void run(String... args) throws Exception {
 		final HelpFormatter formatter = new HelpFormatter();
 		if (args.length == 0) {
 			formatter.printHelp("soot-infoflow-cmd [OPTIONS]", options);
@@ -76,7 +77,7 @@ public class MainClassForJar {
 		config.setInspectSources(false);
 		config.setInspectSinks(false);
 		config.setLogSourcesAndSinks(true);
-		infoflow.setTaintWrapper(new EasyTaintWrapper());
+		infoflow.setTaintWrapper(initializeDefaultTaintWrapper());
 		if (cmd.hasOption("cp"))
 			config.getPathConfiguration().setPathReconstructionMode(PathReconstructionMode.Fast);
 		loadSourceAndSinks(sourceSinkFile);
@@ -107,4 +108,11 @@ public class MainClassForJar {
 		}
 	}
 
+	/**
+	 * Initializes the default taint wrapper.
+	 */
+	private ITaintPropagationWrapper initializeDefaultTaintWrapper() throws Exception {
+		ITaintPropagationWrapper result = new SummaryTaintWrapper(new LazySummaryProvider("summariesManual"));
+		return result;
+	}
 }

@@ -381,8 +381,9 @@ public class MainClass {
 	private ITaintPropagationWrapper initializeTaintWrapper(CommandLine cmd) throws Exception {
 		// If we want to analyze the full framework together with the app, we do not
 		// want any shortcuts
-		if (cmd.hasOption(OPTION_ANALYZE_FRAMEWORKS))
-			return null;
+		// FIXME. this is bad, since malware apps use frameowork-like package names
+		// if (cmd.hasOption(OPTION_ANALYZE_FRAMEWORKS))
+		// return null;
 
 		// Get the definition file(s) for the taint wrapper
 		String[] definitionFiles = cmd.getOptionValues(OPTION_TAINT_WRAPPER_FILE);

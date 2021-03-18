@@ -31,6 +31,16 @@
 				</flow>
 			</flows>
 		</method>
+		<method id="void setEntity(org.apache.http.HttpEntity)">
+			<flows>
+				<flow isAlias="true" typeChecking="false">
+					<from sourceSinkType="Parameter" ParameterIndex="0" />
+					<to sourceSinkType="Field"
+						AccessPath="[org.apache.http.client.methods.HttpEntityEnclosingRequestBase: org.apache.http.HttpEntity entity]"
+						AccessPathTypes="[org.apache.http.HttpEntity]" />
+				</flow>
+			</flows>
+		</method>
 		<method id="org.apache.http.RequestLine getRequestLine()">
 			<flows>
 				<flow isAlias="true" typeChecking="false">

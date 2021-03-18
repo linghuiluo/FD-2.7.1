@@ -16,12 +16,12 @@ public class SystemClassHandler {
 	/**
 	 * Checks whether the given class name belongs to a system package
 	 * 
-	 * @param className
-	 *            The class name to check
+	 * @param className The class name to check
 	 * @return True if the given class name belongs to a system package, otherwise
 	 *         false
 	 */
 	public static boolean isClassInSystemPackage(String className) {
+		// FIXME: This is too loose, malware apps can have names like this.
 		return className.startsWith("android.") || className.startsWith("java.") || className.startsWith("javax.")
 				|| className.startsWith("sun.") || className.startsWith("org.omg.")
 				|| className.startsWith("org.w3c.dom.") || className.startsWith("com.google.")
@@ -31,8 +31,7 @@ public class SystemClassHandler {
 	/**
 	 * Checks whether the type belongs to a system package
 	 * 
-	 * @param type
-	 *            The type to check
+	 * @param type The type to check
 	 * @return True if the given type belongs to a system package, otherwise false
 	 */
 	public static boolean isClassInSystemPackage(Type type) {
@@ -47,10 +46,8 @@ public class SystemClassHandler {
 	 * happens. The system class cannot access or know about user-code fields. This
 	 * leaves reflection aside, but we don't support reflection anyway.
 	 * 
-	 * @param taintedPath
-	 *            The access path of the incoming taint
-	 * @param method
-	 *            The method that gets called
+	 * @param taintedPath The access path of the incoming taint
+	 * @param method      The method that gets called
 	 * @return True if the given taint is visible to the callee, otherwise false
 	 */
 	public static boolean isTaintVisible(AccessPath taintedPath, SootMethod method) {

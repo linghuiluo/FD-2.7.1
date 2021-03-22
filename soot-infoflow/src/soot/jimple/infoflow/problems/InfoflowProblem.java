@@ -15,6 +15,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import heros.FlowFunction;
 import heros.FlowFunctions;
 import heros.flowfunc.KillAll;
@@ -61,6 +64,8 @@ import soot.jimple.infoflow.util.TypeUtils;
 
 public class InfoflowProblem extends AbstractInfoflowProblem {
 
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	private final PropagationRuleManager propagationRules;
 
 	protected final TaintPropagationResults results;
@@ -94,6 +99,9 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 
 				@Override
 				public Set<Abstraction> computeTargets(Abstraction d1, Abstraction source) {
+					// FIXME. Normal flow fucntion
+					logger.trace("Normal flow function {} {}", d1, source);
+					logger.trace(this.stmt.toString());
 					// Notify the handler if we have one
 					if (taintPropagationHandler != null)
 						taintPropagationHandler.notifyFlowIn(stmt, source, manager,
@@ -420,6 +428,9 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 
 					@Override
 					public Set<Abstraction> computeTargets(Abstraction d1, Abstraction source) {
+						// FIXME. Call flow function
+						logger.trace("Call flow function {} {}", d1, source);
+						logger.trace(src.toString());
 						Set<Abstraction> res = computeTargetsInternal(d1, source);
 						if (res != null && !res.isEmpty()) {
 							for (Abstraction abs : res)
@@ -509,6 +520,9 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 					@Override
 					public Set<Abstraction> computeTargets(Abstraction source, Abstraction d1,
 							Collection<Abstraction> callerD1s) {
+						// FIXME. Return flow function
+						logger.trace("Return flow function {} {} {}", source, d1, callerD1s);
+						logger.trace("callsite: {} exitStmt: {} retSite: {}", callSite, exitStmt, retSite);
 						Set<Abstraction> res = computeTargetsInternal(source, callerD1s);
 						return notifyOutFlowHandlers(exitStmt, d1, source, res, FlowFunctionType.ReturnFlowFunction);
 					}
@@ -754,6 +768,8 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 
 					@Override
 					public Set<Abstraction> computeTargets(Abstraction d1, Abstraction source) {
+						logger.trace("CallToReturn flow function {} {}", d1, source);
+						logger.trace(call.toString());
 						Set<Abstraction> res = computeTargetsInternal(d1, source);
 						return notifyOutFlowHandlers(call, d1, source, res, FlowFunctionType.CallToReturnFlowFunction);
 					}

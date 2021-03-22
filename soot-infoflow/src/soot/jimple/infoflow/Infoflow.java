@@ -335,7 +335,7 @@ public class Infoflow extends AbstractInfoflow {
 
 				// Create the executor that takes care of the workers
 				// FIXME. Change back 1 to Runtime.getRuntime().availableProcessors();
-				int numThreads = 1;
+				int numThreads = Runtime.getRuntime().availableProcessors();
 				InterruptableExecutor executor = executorFactory.createExecutor(numThreads, true, config);
 				executor.setThreadFactory(new ThreadFactory() {
 

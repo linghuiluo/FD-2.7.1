@@ -140,6 +140,7 @@ public class XMLSummaryProvider implements IMethodSummaryProvider {
 		fileSystem = path.getFileSystem();
 		try (Stream<Path> walk = Files.walk(path, 1)) {
 			pathes = new HashSet<Path>();
+			int i = 0;
 			for (Iterator<Path> it = walk.iterator(); it.hasNext();) {
 				Path classp = it.next();
 				pathes.add(classp);
@@ -308,8 +309,9 @@ public class XMLSummaryProvider implements IMethodSummaryProvider {
 	protected void addMethodSummaries(ClassMethodSummaries newSummaries) {
 		addSubsigsForMethod(newSummaries.getMethodSummaries());
 		summaries.merge(newSummaries);
-		if (loadableClasses != null && !loadableClasses.isEmpty())
-			loadableClasses.remove(newSummaries.getClassName());
+		// FIXME. not clear why this class should removed from loadableClasses.
+		// if (loadableClasses != null && !loadableClasses.isEmpty())
+		// loadableClasses.remove(newSummaries.getClassName());
 		supportedClasses.add(newSummaries.getClassName());
 	}
 

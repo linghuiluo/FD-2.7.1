@@ -20,7 +20,6 @@ import soot.jimple.infoflow.android.axml.AXmlAttribute;
 import soot.jimple.infoflow.android.axml.AXmlHandler;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.jimple.infoflow.android.axml.ApkHandler;
-import soot.jimple.infoflow.util.SystemClassHandler;
 
 /**
  * This class provides easy access to all data of an AppManifest.<br />
@@ -39,7 +38,7 @@ public class ProcessManifest implements Closeable {
 	 * Enumeration containing the various component types supported in Android
 	 */
 	public enum ComponentType {
-	Activity, Service, ContentProvider, BroadcastReceiver
+		Activity, Service, ContentProvider, BroadcastReceiver
 	}
 
 	/**
@@ -255,8 +254,10 @@ public class ProcessManifest implements Closeable {
 			AXmlAttribute<?> attr = node.getAttribute("name");
 			if (attr != null) {
 				String className = expandClassName((String) attr.getValue());
-				if (!SystemClassHandler.isClassInSystemPackage(className))
-					entryPoints.add(className);
+				// FIXME: this caused many apks could not be analyzed, since they have
+				// system-like package names.
+				// if (!SystemClassHandler.isClassInSystemPackage(className))
+				entryPoints.add(className);
 			} else {
 				// This component does not have a name, so this might be
 				// obfuscated malware. We apply a heuristic.
@@ -269,8 +270,10 @@ public class ProcessManifest implements Closeable {
 							String name = (String) attrValue.getValue();
 							if (isValidComponentName(name)) {
 								String expandedName = expandClassName(name);
-								if (!SystemClassHandler.isClassInSystemPackage(expandedName))
-									entryPoints.add(expandedName);
+								// FIXME: this caused many apks could not be analyzed, since they have
+								// system-like package names.
+								// if (!SystemClassHandler.isClassInSystemPackage(expandedName))
+								entryPoints.add(expandedName);
 							}
 						}
 					}
@@ -668,13 +671,11 @@ public class ProcessManifest implements Closeable {
 					boolean actionFilter = false;
 					boolean categoryFilter = false;
 					for (AXmlNode intentFilter : activityChildren.getChildren()) {
-						if (intentFilter.getTag().equals("action")
-								&& intentFilter.getAttribute("name").getValue().toString()
-										.equals("android.intent.action.MAIN"))
+						if (intentFilter.getTag().equals("action") && intentFilter.getAttribute("name").getValue()
+								.toString().equals("android.intent.action.MAIN"))
 							actionFilter = true;
-						else if (intentFilter.getTag().equals("category")
-								&& intentFilter.getAttribute("name").getValue().toString()
-										.equals("android.intent.category.LAUNCHER"))
+						else if (intentFilter.getTag().equals("category") && intentFilter.getAttribute("name")
+								.getValue().toString().equals("android.intent.category.LAUNCHER"))
 							categoryFilter = true;
 					}
 

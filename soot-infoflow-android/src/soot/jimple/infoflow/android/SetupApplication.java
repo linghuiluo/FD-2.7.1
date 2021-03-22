@@ -1363,10 +1363,12 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 
 		MultiRunResultAggregator resultAggregator = new MultiRunResultAggregator();
 
-		// We need at least one entry point
-		if (entrypoints == null || entrypoints.isEmpty()) {
-			logger.warn("No entry points");
-			return null;
+		if (!config.getUseDummyMainMethodFromGenCG()) {
+			// We need at least one entry point
+			if (entrypoints == null || entrypoints.isEmpty()) {
+				logger.warn("No entry points");
+				return null;
+			}
 		}
 
 		// In one-component-at-a-time, we do not have a single entry point
@@ -1378,6 +1380,7 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 				processEntryPoint(sourcesAndSinks, resultAggregator, entrypointWorklist.size(), entrypoint);
 			}
 		} else if (config.getUseDummyMainMethodFromGenCG()) {
+			// FIXME: this is where our approach starts.
 			processGenCGEntryPoint(sourcesAndSinks, resultAggregator);
 		} else {
 			processEntryPoint(sourcesAndSinks, resultAggregator, -1, null);

@@ -20,6 +20,7 @@ import soot.jimple.infoflow.android.axml.AXmlAttribute;
 import soot.jimple.infoflow.android.axml.AXmlHandler;
 import soot.jimple.infoflow.android.axml.AXmlNode;
 import soot.jimple.infoflow.android.axml.ApkHandler;
+import soot.jimple.infoflow.util.SystemClassHandler;
 
 /**
  * This class provides easy access to all data of an AppManifest.<br />
@@ -233,14 +234,25 @@ public class ProcessManifest implements Closeable {
 		// Collect the components
 		Set<String> entryPoints = new HashSet<String>();
 		for (AXmlNode node : this.activities)
-			checkAndAddComponent(entryPoints, node);
+			checkAndAddComponent(entryPoints, node, true);
 		for (AXmlNode node : this.providers)
-			checkAndAddComponent(entryPoints, node);
+			checkAndAddComponent(entryPoints, node, true);
 		for (AXmlNode node : this.services)
-			checkAndAddComponent(entryPoints, node);
+			checkAndAddComponent(entryPoints, node, true);
 		for (AXmlNode node : this.receivers)
-			checkAndAddComponent(entryPoints, node);
-
+			checkAndAddComponent(entryPoints, node, true);
+		if (entryPoints.isEmpty()) {
+			// if no entry point is detected at all, the app is likely be malware, add all
+			// components
+			for (AXmlNode node : this.activities)
+				checkAndAddComponent(entryPoints, node, false);
+			for (AXmlNode node : this.providers)
+				checkAndAddComponent(entryPoints, node, false);
+			for (AXmlNode node : this.services)
+				checkAndAddComponent(entryPoints, node, false);
+			for (AXmlNode node : this.receivers)
+				checkAndAddComponent(entryPoints, node, false);
+		}
 		String appName = getApplicationName();
 		if (appName != null && !appName.isEmpty())
 			entryPoints.add(appName);
@@ -248,7 +260,7 @@ public class ProcessManifest implements Closeable {
 		return entryPoints;
 	}
 
-	private void checkAndAddComponent(Set<String> entryPoints, AXmlNode node) {
+	private void checkAndAddComponent(Set<String> entryPoints, AXmlNode node, boolean filter) {
 		AXmlAttribute<?> attrEnabled = node.getAttribute("enabled");
 		if (attrEnabled == null || !attrEnabled.getValue().equals(Boolean.FALSE)) {
 			AXmlAttribute<?> attr = node.getAttribute("name");
@@ -256,8 +268,12 @@ public class ProcessManifest implements Closeable {
 				String className = expandClassName((String) attr.getValue());
 				// FIXME: this caused many apks could not be analyzed, since they have
 				// system-like package names.
-				// if (!SystemClassHandler.isClassInSystemPackage(className))
-				entryPoints.add(className);
+				if (filter) {
+					if (!SystemClassHandler.isClassInSystemPackage(className))
+						entryPoints.add(className);
+				} else {
+					entryPoints.add(className);
+				}
 			} else {
 				// This component does not have a name, so this might be
 				// obfuscated malware. We apply a heuristic.
@@ -272,8 +288,12 @@ public class ProcessManifest implements Closeable {
 								String expandedName = expandClassName(name);
 								// FIXME: this caused many apks could not be analyzed, since they have
 								// system-like package names.
-								// if (!SystemClassHandler.isClassInSystemPackage(expandedName))
-								entryPoints.add(expandedName);
+								if (filter) {
+									if (!SystemClassHandler.isClassInSystemPackage(expandedName))
+										entryPoints.add(expandedName);
+								} else {
+									entryPoints.add(expandedName);
+								}
 							}
 						}
 					}

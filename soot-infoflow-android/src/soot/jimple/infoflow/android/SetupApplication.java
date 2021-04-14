@@ -13,6 +13,7 @@ package soot.jimple.infoflow.android;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import cgs.CFGSerializer;
 import cgs.CGSerializer;
 import heros.solver.Pair;
 import soot.G;
@@ -1406,7 +1408,7 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		long beforeEntryPoint = System.nanoTime();
 		long callbackDuration = System.nanoTime();
 
-		SootClass mainClass = Scene.v().forceResolve("averroes.DummyMainClass", SootClass.SIGNATURES);
+		SootClass mainClass = Scene.v().forceResolve("averroes.Library", SootClass.SIGNATURES);
 		mainClass.setResolvingLevel(SootClass.BODIES);
 		mainClass.setApplicationClass();
 		Scene.v().loadClassAndSupport(mainClass.getName());
@@ -1428,6 +1430,59 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		// Construct the actual callgraph
 		logger.info("Constructing the callgraph...");
 		PackManager.v().getPack("cg").apply();
+
+		// TODO: Remove the following lines.
+		CFGSerializer.serialize(mainMethod,
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "_cfg_gencg_MainMethod.json");
+		File file = new File(
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "DummyMainClass.jimple");
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(file);
+			soot.Printer.v().printTo(mainClass, writer);
+			writer.flush();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		// TODO: Remove the following lines.
+		file = new File(config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "Library.jimple");
+		try {
+			writer = new PrintWriter(file);
+			soot.Printer.v().printTo(libraryClass, writer);
+			writer.flush();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		// TODO: Remove the following lines.
+		SootClass a = Scene.v().forceResolve("averroes.AbstractLibrary", SootClass.SIGNATURES);
+
+		file = new File(
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "AbstractLibrary.jimple");
+		try {
+			writer = new PrintWriter(file);
+			soot.Printer.v().printTo(a, writer);
+			writer.flush();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		// TODO: Remove the following lines.
+		a = Scene.v().forceResolve("android.app.Activity", SootClass.SIGNATURES);
+
+		file = new File(config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "Activity.jimple");
+		try {
+			writer = new PrintWriter(file);
+			soot.Printer.v().printTo(a, writer);
+			writer.flush();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		CallGraph cg = Scene.v().getCallGraph();
 		CGSerializer.serialize(cg,
@@ -1528,6 +1583,25 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 			createMainMethod(entrypoint);
 			constructCallgraphInternal();
 		}
+		// TODO: Remove the following lines.
+		SootClass mainClass = Scene.v().getEntryPoints().get(0).getDeclaringClass();
+		CFGSerializer.serialize(mainClass.getMethodByName("dummyMainMethod"),
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "_cfg_DummyMainMethod.json");
+		File file = new File(
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "DummyMainClass.jimple");
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(file);
+			soot.Printer.v().printTo(mainClass, writer);
+			writer.flush();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		CallGraph cg = Scene.v().getCallGraph();
+		CGSerializer.serialize(cg,
+				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "_cg_FD_271.json");
 
 		// Create and run the data flow tracker
 		infoflow = createInfoflow();
@@ -1558,9 +1632,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 				perfData.setTotalRuntimeSeconds((int) Math.round((System.nanoTime() - beforeEntryPoint) / 1E9));
 			}
 		}
-		CallGraph cg = Scene.v().getCallGraph();
-		CGSerializer.serialize(cg,
-				config.getAnalysisFileConfig().getTargetAPKFile().replace(".apk", "") + "_cg_FD_271.json");
 
 		// We don't need the computed callbacks anymore
 		this.callbackMethods.clear();

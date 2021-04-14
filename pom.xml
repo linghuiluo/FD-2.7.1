@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.fraunhofer.sit.flowdroid</groupId>
 	<artifactId>parent</artifactId>
@@ -23,6 +24,17 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>ca.mcgill.sable</groupId>
+				<artifactId>soot</artifactId>
+				<version>3.2.0</version>
+				<exclusions>
+					<exclusion>
+						<groupId>ca.mcgill.sable</groupId>
+						<artifactId>jasmin</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>

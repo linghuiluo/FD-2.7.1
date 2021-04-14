@@ -1,7 +1,9 @@
 package soot.jimple.infoflow.aliasing;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -227,11 +229,23 @@ public class Aliasing {
 					// alias to
 					// a static field
 					if (ap.getFirstFieldType().equals(((InstanceFieldRef) val).getBase().getType())) {
-						SootField[] fields = val instanceof FieldRef ? new SootField[] { ((FieldRef) val).getField() }
-								: new SootField[0];
-						if (ap.getLastFieldType().equals(((InstanceFieldRef) val).getField().getType()))
-							return this.manager.getAccessPathFactory()
-									.createAccessPath(((InstanceFieldRef) val).getBase(), fields, true);
+						List<SootField> fields = new ArrayList<>();
+						if (val instanceof FieldRef)
+							fields.add(((FieldRef) val).getField());
+
+						boolean addFields = false;
+						for (SootField f : ap.getFields()) {
+							if (addFields) {
+								fields.add(f);
+							}
+							if (f.getType().equals(((InstanceFieldRef) val).getField().getType())) {
+								addFields = true;
+							}
+						}
+						if (addFields) {
+							return this.manager.getAccessPathFactory().createAccessPath(
+									((InstanceFieldRef) val).getBase(), fields.toArray(new SootField[0]), true);
+						}
 					}
 				}
 				if (!ap.isLocal() && !ap.isInstanceFieldRef())

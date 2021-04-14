@@ -237,6 +237,29 @@ public class AccessPath implements Cloneable {
 		return value != null && value instanceof Local && (fields == null || fields.length == 0);
 	}
 
+	// FIXME: Delete this method
+	public String toSimpleString() {
+		String str = "";
+		if (value != null)
+			str += value.toString();
+		if (fields != null)
+			for (int i = 0; i < fields.length; i++)
+				if (fields[i] != null) {
+					if (!str.isEmpty())
+						str += ".";
+					str += fields[i].getName();
+				}
+		if (taintSubFields)
+			str += ".*";
+
+		if (arrayTaintType == ArrayTaintType.ContentsAndLength)
+			str += ".<+length>";
+		else if (arrayTaintType == ArrayTaintType.Length)
+			str += ".<length>";
+
+		return str;
+	}
+
 	@Override
 	public String toString() {
 		String str = "";

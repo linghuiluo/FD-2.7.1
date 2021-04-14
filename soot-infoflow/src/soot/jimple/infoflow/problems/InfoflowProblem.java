@@ -100,8 +100,8 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 				@Override
 				public Set<Abstraction> computeTargets(Abstraction d1, Abstraction source) {
 					// FIXME. Normal flow fucntion
-					logger.trace("Normal flow function {} {}", d1, source);
-					logger.trace(this.stmt.toString());
+					logger.trace("Normal flow function: {}", source);
+					logger.trace(this.stmt.toString() + "\n");
 					// Notify the handler if we have one
 					if (taintPropagationHandler != null)
 						taintPropagationHandler.notifyFlowIn(stmt, source, manager,
@@ -429,8 +429,8 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 					@Override
 					public Set<Abstraction> computeTargets(Abstraction d1, Abstraction source) {
 						// FIXME. Call flow function
-						logger.trace("Call flow function {} {}", d1, source);
-						logger.trace(src.toString());
+						logger.trace("Call flow function: {}", source);
+						logger.trace(src.toString() + "\n");
 						Set<Abstraction> res = computeTargetsInternal(d1, source);
 						if (res != null && !res.isEmpty()) {
 							for (Abstraction abs : res)
@@ -521,8 +521,8 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 					public Set<Abstraction> computeTargets(Abstraction source, Abstraction d1,
 							Collection<Abstraction> callerD1s) {
 						// FIXME. Return flow function
-						logger.trace("Return flow function {} {} {}", source, d1, callerD1s);
-						logger.trace("callsite: {} exitStmt: {} retSite: {}", callSite, exitStmt, retSite);
+						logger.trace("Return flow function: {}", source);
+						logger.trace("callsite: {} exitStmt: {} retSite: {}", callSite, exitStmt, retSite + "\n");
 						Set<Abstraction> res = computeTargetsInternal(source, callerD1s);
 						return notifyOutFlowHandlers(exitStmt, d1, source, res, FlowFunctionType.ReturnFlowFunction);
 					}
@@ -768,8 +768,8 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 
 					@Override
 					public Set<Abstraction> computeTargets(Abstraction d1, Abstraction source) {
-						logger.trace("CallToReturn flow function {} {}", d1, source);
-						logger.trace(call.toString());
+						logger.trace("CallToReturn flow function: {}", source);
+						logger.trace(call.toString() + "\n");
 						Set<Abstraction> res = computeTargetsInternal(d1, source);
 						return notifyOutFlowHandlers(call, d1, source, res, FlowFunctionType.CallToReturnFlowFunction);
 					}

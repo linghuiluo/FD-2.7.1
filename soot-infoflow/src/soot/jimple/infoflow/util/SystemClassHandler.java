@@ -22,8 +22,8 @@ public class SystemClassHandler {
 	 */
 	public static boolean isClassInSystemPackage(String className) {
 		// FIXME: This is too loose, malware apps can have names like this.
-		return className.startsWith("android.") || className.startsWith("java.") || className.startsWith("javax.")
-				|| className.startsWith("sun.") || className.startsWith("org.omg.")
+		return className.startsWith("androidx.") || className.startsWith("android.") || className.startsWith("java.")
+				|| className.startsWith("javax.") || className.startsWith("sun.") || className.startsWith("org.omg.")
 				|| className.startsWith("org.w3c.dom.") || className.startsWith("com.google.")
 				|| className.startsWith("com.android.");
 	}

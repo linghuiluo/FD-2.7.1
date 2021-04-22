@@ -18,7 +18,6 @@ public class GenCGEntryPointCreator extends BaseEntryPointCreator {
 	@Override
 	public Collection<String> getRequiredClasses() {
 		ArrayList<String> classes = new ArrayList<>();
-		classes.add("averroes.DummyMainClass");
 		classes.add("averroes.Library");
 		return classes;
 	}
@@ -42,7 +41,7 @@ public class GenCGEntryPointCreator extends BaseEntryPointCreator {
 
 	@Override
 	public SootMethod createDummyMain() {
-		mainMethod = Scene.v().getMethod("<averroes.DummyMainClass: void main(java.lang.String[])>");
+		mainMethod = Scene.v().getMethod("<averroes.Library: void main(java.lang.String[])>");
 		return mainMethod;
 	}
 }

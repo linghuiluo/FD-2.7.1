@@ -44,6 +44,8 @@ public class MainClassForJar {
 		options.addOption("o", "outputfile", true, "Output XML file for the discovered data flows");
 		options.addOption("cp", "paths", false,
 				"Compute the taint propagation paths and not just source-to-sink connections. This is a shorthand notation for -pr fast.");
+		options.addOption("ol", "outputlinenumbers", false,
+				"Enable the output of bytecode line numbers associated with sources and sinks in XML results");
 	}
 
 	public void run(String... args) throws Exception {
@@ -80,6 +82,8 @@ public class MainClassForJar {
 		infoflow.setTaintWrapper(initializeDefaultTaintWrapper());
 		if (cmd.hasOption("cp"))
 			config.getPathConfiguration().setPathReconstructionMode(PathReconstructionMode.Fast);
+		if (cmd.hasOption("ol"))
+			config.setEnableLineNumbers(true);
 		loadSourceAndSinks(sourceSinkFile);
 		IEntryPointCreator entryPointCreator = new GenCGEntryPointCreator();
 		infoflow.addResultsAvailableHandler(new WriteResultsToXMLHandler(resultsFile, config));

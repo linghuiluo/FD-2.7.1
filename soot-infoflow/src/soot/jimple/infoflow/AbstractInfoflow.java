@@ -195,7 +195,7 @@ public abstract class AbstractInfoflow implements IInfoflow {
 		// reset Soot:
 		logger.info("Resetting Soot...");
 		soot.G.reset();
-
+		Options.v().set_keep_line_number(config.getEnableLineNumbers());
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		if (config.getWriteOutputFiles())

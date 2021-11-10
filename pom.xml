@@ -28,12 +28,6 @@
 				<groupId>org.soot-oss</groupId>
 				<artifactId>soot</artifactId>
 				<version>4.3.0-SNAPSHOT</version>
-				<exclusions>
-					<exclusion>
-						<groupId>ca.mcgill.sable</groupId>
-						<artifactId>jasmin</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>

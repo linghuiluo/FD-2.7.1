@@ -961,6 +961,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager, IOneSourceA
 							SootClass cl = Scene.v().getSootClass(method.getClassName());
 							sm = cl.getMethodUnsafe(subSig);
                             if (cl.resolvingLevel() >= 1) {
+                                // at least resolved at HIERARCHY
                                 while (cl.hasSuperclass()) {
                                     cl = Scene.v().getSootClass(cl.getSuperclass().getName());
                                     sm = cl.getMethodUnsafe(subSig);
@@ -1019,6 +1020,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager, IOneSourceA
 								SootClass cl = Scene.v().getSootClass(method.getClassName());
 								sm = cl.getMethodUnsafe(subSig);
                                 if (cl.resolvingLevel() >=1) {
+                                    // at least resolved at HIERARCHY
                                     while (cl.hasSuperclass()) {
                                         cl = Scene.v().getSootClass(cl.getSuperclass().getName());
                                         sm = cl.getMethodUnsafe(subSig);

@@ -236,8 +236,10 @@ public class MainClass {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (args.length < 1)
+		if (args.length < 1) {
+			new MainClass().run(args);
 			return;
+		}
 		String framework = args[0];
 		String[] subArgs = new String[args.length - 1];
 		for (int i = 1; i < args.length; i++)

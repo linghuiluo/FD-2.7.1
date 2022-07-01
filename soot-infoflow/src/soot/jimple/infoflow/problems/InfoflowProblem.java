@@ -101,7 +101,7 @@ public class InfoflowProblem extends AbstractInfoflowProblem {
 				public Set<Abstraction> computeTargets(Abstraction d1, Abstraction source) {
 					// FIXME. Normal flow fucntion
 					logger.trace("Normal flow function: {}", source);
-					logger.trace(this.stmt.toString() + "\n");
+					logger.trace(this.stmt.toString() + " # " +interproceduralCFG().getMethodOf(stmt).getSignature());
 					// Notify the handler if we have one
 					if (taintPropagationHandler != null)
 						taintPropagationHandler.notifyFlowIn(stmt, source, manager,

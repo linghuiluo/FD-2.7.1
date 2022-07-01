@@ -22,12 +22,13 @@ import org.slf4j.LoggerFactory;
 import soot.Body;
 import soot.IntType;
 import soot.Local;
+import soot.LocalGenerator;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Value;
-import soot.javaToJimple.LocalGenerator;
+import soot.javaToJimple.DefaultLocalGenerator;
 import soot.jimple.EqExpr;
 import soot.jimple.GotoStmt;
 import soot.jimple.IfStmt;
@@ -54,10 +55,10 @@ public class DefaultEntryPointCreator extends BaseEntryPointCreator {
 	/**
 	 * Creates a new instanceof the {@link DefaultEntryPointCreator} class
 	 * 
-	 * @param methodsToCall
-	 *            A collection containing the methods to be called in the dummy main
-	 *            method. Note that the order of the method calls is simulated to be
-	 *            arbitrary. Entries must be valid Soot method signatures.
+	 * @param methodsToCall A collection containing the methods to be called in the
+	 *                      dummy main method. Note that the order of the method
+	 *                      calls is simulated to be arbitrary. Entries must be
+	 *                      valid Soot method signatures.
 	 */
 	public DefaultEntryPointCreator(Collection<String> methodsToCall) {
 		this.methodsToCall = methodsToCall;
@@ -69,7 +70,7 @@ public class DefaultEntryPointCreator extends BaseEntryPointCreator {
 
 		// create new class:
 		Body body = mainMethod.getActiveBody();
-		LocalGenerator generator = new LocalGenerator(body);
+		LocalGenerator generator = new DefaultLocalGenerator(body);
 		HashMap<String, Local> localVarsForClasses = new HashMap<String, Local>();
 
 		// create constructors:

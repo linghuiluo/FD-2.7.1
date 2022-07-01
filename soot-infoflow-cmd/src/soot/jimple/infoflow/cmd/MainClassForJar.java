@@ -17,11 +17,14 @@ import soot.jimple.infoflow.InfoflowConfiguration;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowConfiguration.PathReconstructionMode;
 import soot.jimple.infoflow.android.data.parsers.PermissionMethodParser;
+import soot.jimple.infoflow.android.source.parsers.xml.XMLSourceSinkParser;
 import soot.jimple.infoflow.entryPointCreators.IEntryPointCreator;
 import soot.jimple.infoflow.methodSummary.data.provider.LazySummaryProvider;
 import soot.jimple.infoflow.methodSummary.taintWrappers.SummaryTaintWrapper;
+import soot.jimple.infoflow.sourcesSinks.definitions.ISourceSinkDefinitionProvider;
 import soot.jimple.infoflow.sourcesSinks.definitions.ParameterSourceSinkDefinition;
 import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkDefinition;
+import soot.jimple.infoflow.sourcesSinks.manager.DefaultSourceSinkManager;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
 
 /**
@@ -31,9 +34,6 @@ import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
  */
 public class MainClassForJar {
 
-	private List<String> sources;
-	private List<String> sinks;
-	private List<String> parameterSources;
 	private Logger logger = LoggerFactory.getLogger(MainClassForJar.class);
 	private Options options = new Options();
 
@@ -62,11 +62,11 @@ public class MainClassForJar {
 			return;
 		}
 		String appPath = cmd.getOptionValue("a");
-		if (appPath == null)
-			return;
+		if (appPath == null) {
+            formatter.printHelp("soot-infoflow-cmd [OPTIONS]", options);
+            return;
+        }
 		String libPath = cmd.getOptionValue("l");
-		if (libPath == null)
-			return;
 		String sourceSinkFile = cmd.getOptionValue("s");
 		if (sourceSinkFile == null)
 			return;
@@ -84,32 +84,15 @@ public class MainClassForJar {
 			config.getPathConfiguration().setPathReconstructionMode(PathReconstructionMode.Fast);
 		if (cmd.hasOption("ol"))
 			config.setEnableLineNumbers(true);
-		loadSourceAndSinks(sourceSinkFile);
+        ISourceSinkDefinitionProvider ssProvider = null;
+        if(sourceSinkFile.endsWith(".xml")) {
+            ssProvider = XMLSourceSinkParser.fromFile(sourceSinkFile);
+        } else {
+            ssProvider = PermissionMethodParser.fromFile(sourceSinkFile);
+        }
 		IEntryPointCreator entryPointCreator = new GenCGEntryPointCreator();
 		infoflow.addResultsAvailableHandler(new WriteResultsToXMLHandler(resultsFile, config));
-		infoflow.computeInfoflow(appPath, libPath, entryPointCreator, sources, sinks, parameterSources);
-	}
-
-	private void loadSourceAndSinks(String sourceSinkFile) {
-		sources = new ArrayList<>();
-		sinks = new ArrayList<>();
-		parameterSources = new ArrayList<>();
-		try {
-			PermissionMethodParser parser = PermissionMethodParser.fromFile(sourceSinkFile);
-			for (SourceSinkDefinition source : parser.getSources()) {
-				sources.add(source.toString());
-			}
-			for (SourceSinkDefinition source : parser.getParameterSources()) {
-				if (source instanceof ParameterSourceSinkDefinition)
-					parameterSources.add(((ParameterSourceSinkDefinition) source).getParameterSignature());
-			}
-			for (SourceSinkDefinition sink : parser.getSinks()) {
-				sinks.add(sink.toString());
-			}
-
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		infoflow.computeInfoflow(appPath, libPath, entryPointCreator, new DefaultSourceSinkManager(ssProvider));
 	}
 
 	/**

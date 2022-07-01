@@ -10,10 +10,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.EntryPoints;
 import soot.FastHierarchy;
 import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
+import soot.SootMethod;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.cfg.BiDirICFGFactory;
 import soot.jimple.infoflow.cfg.DefaultBiDiICFGFactory;
@@ -30,6 +32,8 @@ import soot.jimple.infoflow.nativeCallHandler.DefaultNativeCallHandler;
 import soot.jimple.infoflow.nativeCallHandler.INativeCallHandler;
 import soot.jimple.infoflow.sourcesSinks.manager.DefaultSourceSinkManager;
 import soot.jimple.infoflow.taintWrappers.ITaintPropagationWrapper;
+import soot.jimple.toolkits.callgraph.CallGraph;
+import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
 
 /**
@@ -209,13 +213,19 @@ public abstract class AbstractInfoflow implements IInfoflow {
 			Options.v().set_soot_classpath(libPath);
 			if (appPath != null) {
 				List<String> processDirs = new LinkedList<String>();
-				for (String ap : appPath.split(File.pathSeparator))
-					processDirs.add(ap);
+				for (String ap : appPath.split(File.pathSeparator)) {
+                    processDirs.add(ap);
+                }
 				Options.v().set_process_dir(processDirs);
 			}
-		} else
-			Options.v().set_soot_classpath(appendClasspath(appPath, libPath));
-
+		} else {
+            List<String> processDirs = new LinkedList<String>();
+            for (String ap : appPath.split(File.pathSeparator)) {
+                processDirs.add(ap);
+            }
+            Options.v().set_process_dir(processDirs);
+            Options.v().set_soot_classpath(appendClasspath(appPath, libPath));
+        }
 		// Configure the callgraph algorithm
 		switch (config.getCallgraphAlgorithm()) {
 		case AutomaticSelection:
@@ -278,7 +288,6 @@ public abstract class AbstractInfoflow implements IInfoflow {
 			Scene.v().addBasicClass(className, SootClass.BODIES);
 		Scene.v().loadNecessaryClasses();
 		logger.info("Basic class loading done.");
-
 		boolean hasClasses = false;
 		for (String className : classes) {
 			SootClass c = Scene.v().forceResolve(className, SootClass.BODIES);
@@ -353,6 +362,7 @@ public abstract class AbstractInfoflow implements IInfoflow {
 		LibraryClassPatcher patcher = new LibraryClassPatcher();
 		patcher.patchLibraries();
 
+
 		// To cope with broken APK files, we convert all classes that are still
 		// dangling after resolution into phantoms
 		for (SootClass sc : Scene.v().getClasses())
@@ -368,7 +378,6 @@ public abstract class AbstractInfoflow implements IInfoflow {
 			PackManager.v().getPack("wjpp").apply();
 			PackManager.v().getPack("cg").apply();
 		}
-
 		// If we don't have a FastHierarchy, we need to create it
 		hierarchy = Scene.v().getOrMakeFastHierarchy();
 

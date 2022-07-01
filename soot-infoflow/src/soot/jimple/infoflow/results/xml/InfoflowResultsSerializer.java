@@ -1,5 +1,6 @@
 package soot.jimple.infoflow.results.xml;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -62,7 +63,7 @@ public class InfoflowResultsSerializer {
 	 */
 	public void serialize(InfoflowResults results, String fileName) throws FileNotFoundException, XMLStreamException {
 		this.startTime = System.currentTimeMillis();
-
+        new File(fileName).getParentFile().mkdirs();
 		OutputStream out = new FileOutputStream(fileName);
 		XMLOutputFactory factory = XMLOutputFactory.newInstance();
 		XMLStreamWriter writer = factory.createXMLStreamWriter(out, "UTF-8");

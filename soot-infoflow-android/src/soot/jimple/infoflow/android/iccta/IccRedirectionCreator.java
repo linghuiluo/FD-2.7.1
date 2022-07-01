@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import soot.Body;
 import soot.Local;
+import soot.LocalGenerator;
 import soot.Modifier;
 import soot.NullType;
 import soot.PatchingChain;
@@ -24,7 +25,7 @@ import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
-import soot.javaToJimple.LocalGenerator;
+import soot.javaToJimple.DefaultLocalGenerator;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.IntConstant;
 import soot.jimple.InvokeExpr;
@@ -55,12 +56,10 @@ public class IccRedirectionCreator {
 		 * Method that is called when a new invocation to a redirector statement has
 		 * been inserted
 		 * 
-		 * @param link
-		 *            The inter-component link for which a statement has been injected
-		 * @param callStmt
-		 *            The statement that has been injected
-		 * @param redirectorMethod
-		 *            The redirector method that is being called
+		 * @param link             The inter-component link for which a statement has
+		 *                         been injected
+		 * @param callStmt         The statement that has been injected
+		 * @param redirectorMethod The redirector method that is being called
 		 */
 		public void onRedirectorCallInserted(IccLink link, Stmt callStmt, SootMethod redirectorMethod);
 
@@ -177,7 +176,7 @@ public class IccRedirectionCreator {
 		final JimpleBody b = Jimple.v().newBody(newSM);
 		newSM.setActiveBody(b);
 
-		LocalGenerator lg = new LocalGenerator(b);
+		LocalGenerator lg = new DefaultLocalGenerator(b);
 
 		Local originActivityParameterLocal = lg.generateLocal(originActivity.getType());
 		Unit originActivityParameterU = Jimple.v().newIdentityStmt(originActivityParameterLocal,
@@ -234,7 +233,7 @@ public class IccRedirectionCreator {
 		JimpleBody b = Jimple.v().newBody(newSM);
 		newSM.setActiveBody(b);
 
-		LocalGenerator lg = new LocalGenerator(b);
+		LocalGenerator lg = new DefaultLocalGenerator(b);
 
 		// identity
 		Local intentParameterLocal = lg.generateLocal(INTENT_TYPE);
@@ -265,7 +264,7 @@ public class IccRedirectionCreator {
 		JimpleBody b = Jimple.v().newBody(newSM);
 		newSM.setActiveBody(b);
 
-		LocalGenerator lg = new LocalGenerator(b);
+		LocalGenerator lg = new DefaultLocalGenerator(b);
 
 		// identity
 		Local intentParameterLocal = lg.generateLocal(INTENT_TYPE);
@@ -306,7 +305,7 @@ public class IccRedirectionCreator {
 		JimpleBody b = Jimple.v().newBody(newSM);
 		newSM.setActiveBody(b);
 
-		LocalGenerator lg = new LocalGenerator(b);
+		LocalGenerator lg = new DefaultLocalGenerator(b);
 
 		Local originActivityParameterLocal = lg.generateLocal(serviceConnection.getType());
 		b.getUnits().add(Jimple.v().newIdentityStmt(originActivityParameterLocal,
@@ -362,7 +361,7 @@ public class IccRedirectionCreator {
 		JimpleBody b = Jimple.v().newBody(newSM);
 		newSM.setActiveBody(b);
 
-		LocalGenerator lg = new LocalGenerator(b);
+		LocalGenerator lg = new DefaultLocalGenerator(b);
 
 		// all parameters
 		List<Local> locals = new ArrayList<>();
@@ -502,8 +501,8 @@ public class IccRedirectionCreator {
 	 * Sets the callback that shall be notified when a new statement has been
 	 * injected to model inter-component call relationships
 	 * 
-	 * @param instrumentationCallback
-	 *            The callback to notify of new instrumentation statements
+	 * @param instrumentationCallback The callback to notify of new instrumentation
+	 *                                statements
 	 */
 	public void setInstrumentationCallback(IRedirectorCallInserted instrumentationCallback) {
 		this.instrumentationCallback = instrumentationCallback;

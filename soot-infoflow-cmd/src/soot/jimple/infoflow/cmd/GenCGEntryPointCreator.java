@@ -1,9 +1,12 @@
 package soot.jimple.infoflow.cmd;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import soot.EntryPoints;
 import soot.Scene;
 import soot.SootField;
 import soot.SootMethod;
@@ -25,7 +28,11 @@ public class GenCGEntryPointCreator extends BaseEntryPointCreator {
 	@Override
 	public Collection<SootMethod> getAdditionalMethods() {
 		SootMethod entryDoItAll = Scene.v().getMethod("<averroes.Library: void <clinit>()>");
-		return Collections.singletonList(entryDoItAll);
+        List<SootMethod> mainMethod = EntryPoints.v().mainsOfApplicationClasses();
+        List<SootMethod> methods = new ArrayList<>();
+        methods.add(entryDoItAll);
+        methods.addAll(mainMethod);
+		return methods;
 	}
 
 	@Override

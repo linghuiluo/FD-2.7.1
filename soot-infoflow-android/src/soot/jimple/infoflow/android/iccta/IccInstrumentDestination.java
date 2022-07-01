@@ -6,6 +6,7 @@ import java.util.List;
 
 import soot.Body;
 import soot.Local;
+import soot.LocalGenerator;
 import soot.Modifier;
 import soot.PatchingChain;
 import soot.RefType;
@@ -17,7 +18,7 @@ import soot.Type;
 import soot.Unit;
 import soot.Value;
 import soot.VoidType;
-import soot.javaToJimple.LocalGenerator;
+import soot.javaToJimple.DefaultLocalGenerator;
 import soot.jimple.Jimple;
 import soot.jimple.NullConstant;
 import soot.jimple.ReturnStmt;
@@ -71,7 +72,7 @@ public class IccInstrumentDestination {
 		{
 			Body b = Jimple.v().newBody(newConstructor);
 			newConstructor.setActiveBody(b);
-			LocalGenerator lg = new LocalGenerator(b);
+			LocalGenerator lg = new DefaultLocalGenerator(b);
 			Local thisLocal = lg.generateLocal(compSootClass.getType());
 			Unit thisU = Jimple.v().newIdentityStmt(thisLocal, Jimple.v().newThisRef(compSootClass.getType()));
 			Local intentParameterLocal = lg.generateLocal(INTENT_TYPE);

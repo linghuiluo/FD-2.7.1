@@ -6,11 +6,12 @@ import java.util.Set;
 
 import soot.Body;
 import soot.Local;
+import soot.LocalGenerator;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
-import soot.javaToJimple.LocalGenerator;
+import soot.javaToJimple.DefaultLocalGenerator;
 import soot.jimple.Jimple;
 import soot.jimple.infoflow.data.SootMethodAndClass;
 import soot.jimple.infoflow.util.SootMethodRepresentationParser;
@@ -47,7 +48,7 @@ public class SequentialEntryPointCreator extends BaseEntryPointCreator {
 
 		// create new class:
 		Body body = mainMethod.getActiveBody();
-		LocalGenerator generator = new LocalGenerator(body);
+		LocalGenerator generator = new DefaultLocalGenerator(body);
 
 		// Create the classes
 		for (String className : classMap.keySet()) {

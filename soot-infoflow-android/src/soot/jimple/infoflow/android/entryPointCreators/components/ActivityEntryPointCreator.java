@@ -11,6 +11,7 @@ import heros.TwoElementSet;
 import soot.Body;
 import soot.IntType;
 import soot.Local;
+import soot.LocalGenerator;
 import soot.Modifier;
 import soot.RefType;
 import soot.Scene;
@@ -19,7 +20,7 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.VoidType;
-import soot.javaToJimple.LocalGenerator;
+import soot.javaToJimple.DefaultLocalGenerator;
 import soot.jimple.Jimple;
 import soot.jimple.JimpleBody;
 import soot.jimple.NopStmt;
@@ -250,10 +251,8 @@ public class ActivityEntryPointCreator extends AbstractComponentEntryPointCreato
 	/**
 	 * Generates the lifecycle for an Android Fragment class
 	 * 
-	 * @param currentClass
-	 *            The class for which to build the fragment lifecycle
-	 * @param classLocal
-	 *            The local referencing an instance of the current class
+	 * @param currentClass The class for which to build the fragment lifecycle
+	 * @param classLocal   The local referencing an instance of the current class
 	 * 
 	 */
 	private void generateFragmentLifecycle(SootClass currentClass, Local classLocal, SootClass activity) {
@@ -368,7 +367,7 @@ public class ActivityEntryPointCreator extends AbstractComponentEntryPointCreato
 		sm.setActiveBody(b);
 		b.insertIdentityStmts();
 
-		LocalGenerator localGen = new LocalGenerator(b);
+		LocalGenerator localGen = new DefaultLocalGenerator(b);
 		Local lcIntent = localGen.generateLocal(intentType);
 		b.getUnits().add(Jimple.v().newAssignStmt(lcIntent,
 				Jimple.v().newInstanceFieldRef(b.getThisLocal(), intentField.makeRef())));

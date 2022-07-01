@@ -146,8 +146,8 @@ public class SinkPropagationRule extends AbstractTaintPropagationRule {
 
 					// If we have already seen the same taint at the same sink, there is no need to
 					// propagate this taint any further.
-					if (sinkInfo != null
-							&& !getResults().addResult(new AbstractionAtSink(sinkInfo.getDefinition(), source, stmt))) {
+					if (sinkInfo != null)
+                        if(!getResults().addResult(new AbstractionAtSink(sinkInfo.getDefinition(), source, stmt))) {
 						killState = true;
 					}
 				}

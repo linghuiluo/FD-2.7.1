@@ -20,6 +20,7 @@ import soot.DoubleType;
 import soot.FloatType;
 import soot.IntType;
 import soot.Local;
+import soot.LocalGenerator;
 import soot.LongType;
 import soot.MethodOrMethodContext;
 import soot.Modifier;
@@ -36,7 +37,7 @@ import soot.Value;
 import soot.ValueBox;
 import soot.VoidType;
 import soot.dexpler.DalvikThrowAnalysis;
-import soot.javaToJimple.LocalGenerator;
+import soot.javaToJimple.DefaultLocalGenerator;
 import soot.jimple.ArrayRef;
 import soot.jimple.AssignStmt;
 import soot.jimple.Constant;
@@ -501,7 +502,7 @@ public class InterproceduralConstantValuePropagator extends SceneTransformer {
 
 						@Override
 						protected SootMethod createDummyMainInternal() {
-							LocalGenerator generator = new LocalGenerator(body);
+							LocalGenerator generator = new DefaultLocalGenerator(body);
 
 							// Create the counter used for the opaque predicate
 							int conditionCounter = 0;

@@ -1,14 +1,21 @@
 package soot.jimple.infoflow.problems;
 
+import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import soot.Unit;
+import soot.Value;
+import soot.jimple.Stmt;
 import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.collect.MyConcurrentHashMap;
 import soot.jimple.infoflow.data.Abstraction;
 import soot.jimple.infoflow.data.AbstractionAtSink;
 import soot.jimple.infoflow.solver.memory.IMemoryManager;
+import soot.jimple.infoflow.sourcesSinks.definitions.AccessPathTuple;
+import soot.jimple.infoflow.sourcesSinks.definitions.MethodSourceSinkDefinition;
+import soot.jimple.infoflow.sourcesSinks.definitions.SourceSinkDefinition;
 import soot.jimple.infoflow.util.SystemClassHandler;
 
 /**
@@ -66,10 +73,34 @@ public class TaintPropagationResults {
 			return true;
 
 		// Construct the abstraction at the sink
-		Abstraction abs = resultAbs.getAbstraction();
+        Abstraction abs = resultAbs.getAbstraction();
 		abs = abs.deriveNewAbstraction(abs.getAccessPath(), resultAbs.getSinkStmt());
 		abs.setCorrespondingCallSite(resultAbs.getSinkStmt());
 
+        Stmt stmt = resultAbs.getSinkStmt();
+        List<Value> args = stmt.getInvokeExpr().getArgs();
+        int index = -1;
+        for (int i = 0; i<args.size(); i++){
+            Value arg = args.get(i);
+            if (abs.getAccessPath().toString().startsWith(arg.toString())){
+                index = i;
+                break;
+            }
+        }
+        if(index==-1)
+            return false;
+        SourceSinkDefinition sinkDef = resultAbs.getSinkDefinition();
+        if(sinkDef instanceof MethodSourceSinkDefinition) {
+            MethodSourceSinkDefinition def = (MethodSourceSinkDefinition)sinkDef;
+            if(def.getParameters()!=null){
+                if (index >= def.getParameters().length)
+                    return false;
+                Set<AccessPathTuple> parameter = def.getParameters()[index];
+                if(parameter.isEmpty()) {
+                    return false;
+                }
+         }
+        }
 		// Reduce the incoming abstraction
 		IMemoryManager<Abstraction, Unit> memoryManager = manager.getForwardSolver().getMemoryManager();
 		if (memoryManager != null) {

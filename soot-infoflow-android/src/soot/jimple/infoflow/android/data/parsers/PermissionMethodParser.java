@@ -111,6 +111,7 @@ public class PermissionMethodParser implements ISourceSinkDefinitionProvider {
 	public Set<SourceSinkDefinition> getSources() {
 		if (sourceList == null || sinkList == null)
 			parse();
+        sourceList.addAll(getParameterSources());
 		return this.sourceList;
 	}
 

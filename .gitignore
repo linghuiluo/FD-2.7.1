@@ -19,3 +19,4 @@ soot-infoflow-cmd/.settings/
 soot-infoflow-summaries/.settings/
 *.project
 *.classpath
+/target/

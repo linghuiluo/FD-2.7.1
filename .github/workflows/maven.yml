@@ -18,7 +18,18 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
- 
+    - name: Check out soot 4.3.0-SNAPSHOT for CGSerializer
+      run: |
+        cd /home/runner/work/
+        git clone https://github.com/soot-oss/soot.git
+        cd soot
+        git checkout fe86c3e73d9b7bcd810dadd2aa81351d4288642d
+        mvn install -DskipTests
+    - name: Check out soot 3.2.0 for FD-2.7.1
+      run: |
+        cd /home/runner/work/soot
+        git checkout dba4cbcc0d84f507944c6b3eaac14b82c13754fa
+        mvn install -DskipTests
     - name: Checkout CGSerializer
       uses: actions/checkout@v2
       with:
@@ -31,14 +42,12 @@ jobs:
           mvn install -DskipTests
           cd ..
           rm -rf CGSerializer
-    - name: Check out soot
-      run: |
-        cd /home/runner/work/
-        git clone https://github.com/soot-oss/soot.git
-        cd soot
-        git checkout dba4cbcc0d84f507944c6b3eaac14b82c13754fa
-        mvn install -DskipTests
     - uses: actions/checkout@v2
     - name: Build FlowDroid
       run: mvn install -DskipTests
-    - run: ls 
+    - run: ls
+    - uses: actions/upload-artifact@v2
+        with:
+          name: soot-infoflow-cmd-jar-with-dependencies.jar
+          path: /home/runner/work/FD-2.7.1/FD-2.7.1/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar
+

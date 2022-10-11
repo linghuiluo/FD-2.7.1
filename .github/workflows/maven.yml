@@ -47,7 +47,7 @@ jobs:
       run: mvn install -DskipTests
     - run: ls
     - uses: actions/upload-artifact@v2
-        with:
-          name: soot-infoflow-cmd-jar-with-dependencies.jar
+      with:
+          name: soot-infoflow-cmd-jar-with-dependencies
           path: /home/runner/work/FD-2.7.1/FD-2.7.1/soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar
 

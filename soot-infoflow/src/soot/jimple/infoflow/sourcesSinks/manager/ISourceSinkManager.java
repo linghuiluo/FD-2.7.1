@@ -10,6 +10,7 @@
  ******************************************************************************/
 package soot.jimple.infoflow.sourcesSinks.manager;
 
+import soot.SootMethod;
 import soot.jimple.Stmt;
 import soot.jimple.infoflow.InfoflowManager;
 import soot.jimple.infoflow.data.AccessPath;
@@ -53,4 +54,5 @@ public interface ISourceSinkManager {
 	 */
 	public SinkInfo getSinkInfo(Stmt sCallSite, InfoflowManager manager, AccessPath ap);
 
+    default public void addSource(SootMethod m){}
 }

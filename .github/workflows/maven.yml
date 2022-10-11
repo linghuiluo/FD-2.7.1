@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ icstlatest ]
   pull_request:
-    branches: [ master ]
+    branches: [ icstlatest ]
 
 jobs:
   build:
@@ -30,7 +30,14 @@ jobs:
           cd CGSerializer
           mvn install -DskipTests
           cd ..
-          rm -rf CGSerializer          
+          rm -rf CGSerializer
+    - name: Check out soot
+      run: |
+        cd /home/runner/work/
+        git clone https://github.com/soot-oss/soot.git
+        cd soot
+        git checkout dba4cbcc0d84f507944c6b3eaac14b82c13754fa
+        mvn install -DskipTests
     - uses: actions/checkout@v2
     - name: Build FlowDroid
       run: mvn install -DskipTests

@@ -1,0 +1,15 @@
+<sinkSources>
+  <!--1 or more repetitions:-->
+  <category id="NO_CATEGORY" customId="" description="">
+    <method signature="&lt;java.sql.DriverManager: java.sql.Connection getConnection(java.lang.String,java.lang.String,java.lang.String)&gt;" callType="methodCall">
+      <param type="java.lang.String" description="" index="1">
+        <accessPath isSource="false" isSink="true">
+        </accessPath>
+      </param>
+        <param type="java.lang.String" description="" index="2">
+            <accessPath isSource="false" isSink="true">
+            </accessPath>
+        </param>
+    </method>
+  </category>
+</sinkSources>

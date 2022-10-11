@@ -79,6 +79,7 @@ import soot.jimple.infoflow.values.IValueProvider;
 import soot.jimple.infoflow.values.SimpleConstantValueProvider;
 import soot.jimple.toolkits.ide.icfg.BiDiInterproceduralCFG;
 import soot.jimple.toolkits.scalar.ConstantPropagatorAndFolder;
+import soot.options.Options;
 import soot.tagkit.IntegerConstantValueTag;
 import soot.tagkit.Tag;
 import soot.util.HashMultiMap;
@@ -194,11 +195,6 @@ public class AndroidSourceSinkManager implements ISourceSinkManager, IOneSourceA
 	 * @param callbackMethods The list of callback methods whose parameters are
 	 *                        sources through which the application receives data
 	 *                        from the operating system
-	 * @param weakMatching    True for weak matching: If an entry in the list has no
-	 *                        return type, it matches arbitrary return types if the
-	 *                        rest of the method signature is compatible. False for
-	 *                        strong matching: The method signature in the code
-	 *                        exactly match the one in the list.
 	 * @param config          The configuration of the data flow analyzer
 	 * @param layoutControls  A map from reference identifiers to the respective
 	 *                        Android layout controls
@@ -936,6 +932,7 @@ public class AndroidSourceSinkManager implements ISourceSinkManager, IOneSourceA
 
 	@Override
 	public void initialize() {
+		Options.v().set_ignore_resolving_levels(true);
 		// Get the Soot method or field for the source signatures we have
 		if (sourceDefs != null) {
 			sourceMethods = new HashMap<>();
@@ -962,12 +959,14 @@ public class AndroidSourceSinkManager implements ISourceSinkManager, IOneSourceA
 						if (sm == null) {
 							String subSig = method.getSubSignature();
 							SootClass cl = Scene.v().getSootClass(method.getClassName());
-							sm = cl.getMethodUnsafe(subSig);
-							while (cl.hasSuperclass()) {
-								cl = Scene.v().getSootClass(cl.getSuperclass().getName());
+							if (cl.resolvingLevel() >= 2) {
 								sm = cl.getMethodUnsafe(subSig);
-								if (sm != null)
-									break;
+								while (cl.hasSuperclass()) {
+									cl = Scene.v().getSootClass(cl.getSuperclass().getName());
+									sm = cl.getMethodUnsafe(subSig);
+									if (sm != null)
+										break;
+								}
 							}
 						}
 						if (sm != null)
@@ -1025,7 +1024,9 @@ public class AndroidSourceSinkManager implements ISourceSinkManager, IOneSourceA
 									if (sm != null)
 										break;
 								}
+
 							}
+
 							if (sm != null)
 								sinkMethods.put(sm, entry.getO2());
 						}

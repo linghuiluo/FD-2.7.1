@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import cgs.CFGSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,9 @@ import soot.PatchingChain;
 import soot.Scene;
 import soot.SootMethod;
 import soot.Unit;
+import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
+import soot.jimple.StringConstant;
 import soot.jimple.infoflow.InfoflowConfiguration.AccessPathConfiguration;
 import soot.jimple.infoflow.InfoflowConfiguration.CallgraphAlgorithm;
 import soot.jimple.infoflow.InfoflowConfiguration.CodeEliminationMode;
@@ -184,8 +187,8 @@ public class Infoflow extends AbstractInfoflow {
 		this.dummyMainMethod = entryPointCreator.createDummyMain();
 		this.additionalEntryPointMethods = entryPointCreator.getAdditionalMethods();
 		List<SootMethod> entryPoints = new ArrayList<>();
-		entryPoints.add(dummyMainMethod);
 		entryPoints.addAll(additionalEntryPointMethods);
+        entryPoints.add(dummyMainMethod);
 		Scene.v().setEntryPoints(entryPoints);
 
 		// Run the analysis
@@ -301,7 +304,9 @@ public class Infoflow extends AbstractInfoflow {
 
 			if (appPath != null) {
 				CallGraph cg = Scene.v().getCallGraph();
-				CGSerializer.serialize(cg, appPath.replace(".jar", "_cg_FD_271.json"));
+				CGSerializer.serialize(cg, appPath.split(":")[0].replace(".jar", "_cg_FD_271.json"));
+                SootMethod doItAll = Scene.v().getSootClass("averroes.Library").getMethodByName("doItAll");
+                CFGSerializer.serialize(doItAll, appPath.split(":")[0].replace(".jar", "_cfg_FD_271.json"));
 			}
 
 			if (config.getCallgraphAlgorithm() != CallgraphAlgorithm.OnDemand)
@@ -426,8 +431,19 @@ public class Infoflow extends AbstractInfoflow {
 					// We have to look through the complete program to find
 					// sources which are then taken as seeds.
 					int sinkCount = 0;
-					logger.info("Looking for sources and sinks...");
-
+					// searching methods that return constant string as sources.
+                    for(SootMethod m: getMethodsForSeeds(iCfg)){
+                        if (m.hasActiveBody()){
+                            Unit last = m.getActiveBody().getUnits().getLast();
+                            if (last instanceof ReturnStmt){
+                                ReturnStmt returnStmt = (ReturnStmt) last;
+                                if (returnStmt.getOp() instanceof StringConstant){
+                                    sourcesSinks.addSource(m);
+                                }
+                            }
+                        }
+                    }
+                    logger.info("Looking for sources and sinks...");
 					for (SootMethod sm : getMethodsForSeeds(iCfg)) {
 						sinkCount += scanMethodForSourcesSinks(sourcesSinks, forwardProblem, sm);
 					}
@@ -719,7 +735,10 @@ public class Infoflow extends AbstractInfoflow {
 						numOfFlows++;
 					}
 				}
-				logger.info("Found " + numOfFlows + " taint flows.");
+                if(numOfFlows == 1)
+                    logger.info("Found " + numOfFlows + " taint flow.");
+				else
+                    logger.info("Found " + numOfFlows + " taint flows.");
 			}
 
 			// Gather performance data
@@ -1063,6 +1082,7 @@ public class Infoflow extends AbstractInfoflow {
 				getMethodsForSeedsIncremental(sm, doneSet, seeds, icfg);
 			logger.info("Collecting seed methods took {} seconds", (System.nanoTime() - beforeSeedMethods) / 1E9);
 		}
+        seeds.addAll(Scene.v().getEntryPoints());
 		return seeds;
 	}
 
@@ -1091,8 +1111,8 @@ public class Infoflow extends AbstractInfoflow {
 	 *         sources or sinks, otherwise false
 	 */
 	protected boolean isValidSeedMethod(SootMethod sm) {
-		if (sm == dummyMainMethod)
-			return false;
+		//if (sm == dummyMainMethod)
+			//return false;
 		// Exclude system classes
 		if (config.getIgnoreFlowsInSystemPackages()
 				&& SystemClassHandler.isClassInSystemPackage(sm.getDeclaringClass().getName()))

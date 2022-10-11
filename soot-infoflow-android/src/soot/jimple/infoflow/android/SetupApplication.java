@@ -1060,7 +1060,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 
 		// Clean up any old Soot instance we may have
 		G.reset();
-
 		Options.v().set_no_bodies_for_excluded(true);
 		Options.v().set_allow_phantom_refs(true);
 		if (config.getWriteOutputFiles())

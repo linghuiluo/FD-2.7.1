@@ -67,6 +67,8 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 	private Collection<SootMethod> returnTaintMethods;
 	private Collection<SootMethod> parameterTaintMethods;
 
+    private HashMap<String, MethodSourceSinkDefinition> methodSourceSinkDefMap;
+
 	protected final LoadingCache<SootClass, Collection<SootClass>> interfacesOf = IDESolver.DEFAULT_CACHE_BUILDER
 			.build(new CacheLoader<SootClass, Collection<SootClass>>() {
 
@@ -130,23 +132,27 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 	public DefaultSourceSinkManager(ISourceSinkDefinitionProvider sourceSinkProvider) {
 		this.sourceDefs = new HashSet<>();
 		this.sinkDefs = new HashSet<>();
-
+        this.parameterSourceDefs = new HashSet<>();
+        this.methodSourceSinkDefMap = new HashMap<>();
 		// Load the sources
 		for (SourceSinkDefinition ssd : sourceSinkProvider.getSources()) {
 			if (ssd instanceof MethodSourceSinkDefinition) {
 				MethodSourceSinkDefinition mssd = (MethodSourceSinkDefinition) ssd;
 				sourceDefs.add(mssd.getMethod().getSignature());
+                methodSourceSinkDefMap.put(mssd.getMethod().getSignature(), mssd);
 			}
 			if (ssd instanceof ParameterSourceSinkDefinition) {
 				ParameterSourceSinkDefinition pssd = (ParameterSourceSinkDefinition) ssd;
 				parameterSourceDefs.add(pssd.getParameterSignature());
 			}
+
 		}
 
 		// Load the sinks
 		for (SourceSinkDefinition ssd : sourceSinkProvider.getSinks()) {
 			if (ssd instanceof MethodSourceSinkDefinition) {
 				MethodSourceSinkDefinition mssd = (MethodSourceSinkDefinition) ssd;
+                methodSourceSinkDefMap.put(mssd.getMethod().getSignature(), mssd);
 				sinkDefs.add(mssd.getMethod().getSignature());
 			}
 		}
@@ -176,6 +182,8 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 			this.parameterSourceStmtAccessPath = new HashMap();
 		if (this.parameterSourcesStmtDef == null)
 			this.parameterSourcesStmtDef = new HashMap();
+        if(this.parameterSourceDefs == null)
+            this.parameterSourceDefs = new HashSet<>();
 		VisibilityParameterAnnotationTag tag = (VisibilityParameterAnnotationTag) m
 				.getTag("VisibilityParameterAnnotationTag");
 		HashMap<Value, AccessPath> paraSources = new HashMap<>();
@@ -222,7 +230,6 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 	@Override
 	public SourceInfo getSourceInfo(Stmt sCallSite, InfoflowManager manager) {
 		SootMethod callee = sCallSite.containsInvokeExpr() ? sCallSite.getInvokeExpr().getMethod() : null;
-
 		AccessPath targetAP = null;
 		if (isSourceMethod(manager, sCallSite)) {
 			if (callee.getReturnType() != null && sCallSite instanceof DefinitionStmt) {
@@ -251,7 +258,9 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 								currentMethod.getActiveBody().getParameterLocal(pref.getIndex()), true);
 				}
 			}
-		}
+		} else if (sCallSite instanceof ReturnStmt){
+
+        }
 
 		if (targetAP == null)
 			return null;
@@ -318,8 +327,9 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 				if (SystemClassHandler.isTaintVisible(ap, iexpr.getMethod())) {
 					// If we don't have an access path, we can only
 					// over-approximate
-					if (ap == null)
-						return new SinkInfo(new MethodSourceSinkDefinition(smac));
+					if (ap == null) {
+                        return new SinkInfo(getMethodSourceSinkDefinition(smac));
+                    }
 
 					// The given access path must at least be referenced
 					// somewhere in the sink
@@ -327,11 +337,11 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 						for (int i = 0; i < iexpr.getArgCount(); i++)
 							if (iexpr.getArg(i) == ap.getPlainValue()) {
 								if (ap.getTaintSubFields() || ap.isLocal())
-									return new SinkInfo(new MethodSourceSinkDefinition(smac));
+									return new SinkInfo(getMethodSourceSinkDefinition(smac));
 							}
 						if (iexpr instanceof InstanceInvokeExpr)
 							if (((InstanceInvokeExpr) iexpr).getBase() == ap.getPlainValue())
-								return new SinkInfo(new MethodSourceSinkDefinition(smac));
+                                return new SinkInfo(getMethodSourceSinkDefinition(smac));
 					}
 				}
 			}
@@ -340,7 +350,23 @@ public class DefaultSourceSinkManager implements ISourceSinkManager {
 		return null;
 	}
 
-	/**
+    private MethodSourceSinkDefinition getMethodSourceSinkDefinition(SootMethodAndClass smac) {
+        MethodSourceSinkDefinition def = null;
+        if(methodSourceSinkDefMap.containsKey(smac.getSignature())){
+            def = methodSourceSinkDefMap.get(smac.getSignature());
+        }else {
+            def = new MethodSourceSinkDefinition(smac);
+        }
+        return def;
+    }
+
+    @Override
+    public void addSource(SootMethod m) {
+        sources.add(m);
+        sourceDefs.add(m.getSignature());
+    }
+
+    /**
 	 * Checks whether the given call sites invokes a sink method
 	 * 
 	 * @param manager   The manager object providing access to the configuration and

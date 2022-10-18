@@ -416,7 +416,8 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 	 */
 	protected void parseAppResources() throws IOException, XmlPullParserException {
 		final String targetAPK = config.getAnalysisFileConfig().getTargetAPKFile();
-
+		if (!targetAPK.endsWith(".apk"))
+			return;
 		// To look for callbacks, we need to start somewhere. We use the Android
 		// lifecycle methods for this purpose.
 		this.manifest = new ProcessManifest(targetAPK);
@@ -1094,15 +1095,15 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 			sootConfig.setSootOptions(Options.v(), config);
 
 		Options.v().set_soot_classpath(getClasspath());
-		if (config.getUseDummyMainMethodFromGenCG())
-			Options.v().set_exclude(
-					Options.v().exclude().stream().filter(c -> !c.equals("android.*")).collect(Collectors.toList()));
+		// if (config.getUseDummyMainMethodFromGenCG())
+		Options.v().set_exclude(
+				Options.v().exclude().stream().filter(c -> !c.equals("android.*")).collect(Collectors.toList()));
 		logger.info("excluded packages: " + Options.v().exclude());
 		Main.v().autoSetOptions();
 		configureCallgraph();
 
 		// Load whatever we need
-		logger.info("Loading dex files...");
+		logger.info("Loading classes...");
 		Scene.v().loadNecessaryClasses();
 
 		// Make sure that we have valid Jimple bodies

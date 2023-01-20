@@ -22,3 +22,4 @@ git checkout icstlatest
 mvn install -DskipTests
 ```
 
+This tool is based on https://github.com/secure-software-engineering/FlowDroid.

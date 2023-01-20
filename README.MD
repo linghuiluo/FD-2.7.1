@@ -6,6 +6,8 @@ git clone https://github.com/soot-oss/soot.git
 cd soot
 git checkout fe86c3e73d9b7bcd810dadd2aa81351d4288642d
 mvn install -DskipTests
+git checkout dba4cbcc0d84f507944c6b3eaac14b82c13754fa
+mvn install -DskipTests  
 ```
 - Build and install CGSerializer
 ```

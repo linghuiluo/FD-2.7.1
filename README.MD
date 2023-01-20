@@ -1,4 +1,4 @@
-# GENCG-FlowDroid
+# GenCG-FlowDroid
 ## Build 
 - Build and install soot
 ```

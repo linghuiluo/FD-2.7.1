@@ -31,13 +31,9 @@ jobs:
         git checkout dba4cbcc0d84f507944c6b3eaac14b82c13754fa
         mvn install -DskipTests
     - name: Checkout CGSerializer
-      uses: actions/checkout@v2
-      with:
-        repository: linghuiluo/CGSerializer
-        token: 6e27591551907198dbfec46ad6d75cb441f88dff
-        path: CGSerializer
-    - name: Build CGSerializer
       run: |
+          cd /home/runner/work/
+          git clone https://github.com/linghuiluo/CGSerializer.git
           cd CGSerializer
           mvn install -DskipTests
           cd ..

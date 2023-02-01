@@ -1,6 +1,6 @@
 # GenCG-FlowDroid
 ## Build 
-- Build and install soot
+1. Build and install two different versions of soot.
 ```
 git clone https://github.com/soot-oss/soot.git
 cd soot
@@ -9,14 +9,14 @@ mvn install -DskipTests
 git checkout dba4cbcc0d84f507944c6b3eaac14b82c13754fa
 mvn install -DskipTests  
 ```
-- Build and install CGSerializer
+2. Build and install CGSerializer.
 ```
 git clone https://github.com/linghuiluo/CGSerializer
 cd CGSerializer
 git checkout dba4cbcc0d84f507944c6b3eaac14b82c13754fa
 mvn install -DskipTests
 ```
-- Build and install GenCG-FlowDroid
+3. Build and install GenCG-FlowDroid. The build artifact is `target/soot-infoflow-cmd-jar-with-dependencies.jar`.
 ```
 git clone https://github.com/linghuiluo/FD-2.7.1
 cd FD-2.7.1
@@ -24,4 +24,4 @@ git checkout icstlatest
 mvn install -DskipTests
 ```
 
-This tool is based on https://github.com/secure-software-engineering/FlowDroid.
+Credit: this tool is based on [FlowDroid](https://github.com/secure-software-engineering/FlowDroid).
